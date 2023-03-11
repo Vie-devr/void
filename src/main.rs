@@ -1,3 +1,25 @@
-fn main() {
-    println!("Hello, world!");
+mod editor;
+
+use macroquad::prelude::*;
+
+#[macroquad::main("Void")]
+async fn main() {
+	let mut editor = editor::Editor::new(
+		editor::EditorStyle::new(
+			5.,
+			2.4,
+			load_ttf_font_from_bytes(include_bytes!("../res/jet_brains_mono.ttf")).unwrap(),
+			80,
+			0.4,
+			Color::from_rgba(45, 45, 45, 255),
+			Color::from_rgba(201, 209, 217, 255),
+		),
+	);
+
+    loop {
+		editor.update();
+		editor.draw();
+
+    	next_frame().await
+    }
 }
