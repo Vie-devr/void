@@ -5,6 +5,7 @@ use macroquad::{
 
 pub struct EditorStyle {
 	pub text_params: TextParams,
+	pub dimensions: TextDimensions,
 	pub text_padding: f32,
 	pub line_spacing: f32,
 	pub font: Font,
@@ -25,6 +26,7 @@ impl EditorStyle {
 				rotation: 0.,
 				color: text,
 			},
+			dimensions: measure_text("T", Some(font), font_size, font_scale),
 			text_padding,
 			line_spacing,
 			font,
@@ -33,9 +35,5 @@ impl EditorStyle {
 			background,
 			text,
 		}
-	}
-
-	pub fn measure_text(&self, text: &str) -> TextDimensions {
-		measure_text(text, Some(self.font), self.font_size, self.font_scale)
 	}
 }

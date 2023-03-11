@@ -1,25 +1,27 @@
 mod editor;
 
 use macroquad::prelude::*;
+use std::env::args;
 
 #[macroquad::main("Void")]
 async fn main() {
 	let mut editor = editor::Editor::new(
+		args().nth(1),
 		editor::EditorStyle::new(
-			5.,
-			2.4,
+			7.5,
+			4.8,
 			load_ttf_font_from_bytes(include_bytes!("../res/jet_brains_mono.ttf")).unwrap(),
 			80,
-			0.4,
+			0.25,
 			Color::from_rgba(45, 45, 45, 255),
 			Color::from_rgba(201, 209, 217, 255),
 		),
 	);
 
-    loop {
+	loop {
 		editor.update();
 		editor.draw();
 
-    	next_frame().await
-    }
+		next_frame().await
+	}
 }

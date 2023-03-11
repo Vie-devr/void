@@ -1,30 +1,41 @@
 mod style;
+mod fs;
 
 pub use style::*;
 
 use macroquad::prelude::*;
 
 pub struct Editor {
-	pub pre_caret: Vec<char>,
-	pub selection: Vec<char>,
-	pub post_caret: Vec<char>,
-	pub style: EditorStyle,
+	pre_caret: Vec<char>,
+	selection: Vec<char>,
+	post_caret: Vec<char>,
+	opened_file: Option<String>,
+	style: EditorStyle,
 }
 
 impl Editor {
-	pub fn new(style: EditorStyle) -> Self {
-		Self {
+	pub fn new(opened_file: Option<String>, style: EditorStyle) -> Self {
+		let mut result = Self {
 			pre_caret: Vec::new(),
 			selection: Vec::new(),
 			post_caret: Vec::new(),
+			opened_file: None,
 			style,
+		};
+
+		// Open file if path is given
+		if let Some(path) = opened_file {
+			result.open_file_from_path(path);
 		}
+
+		result
 	}
 
 	pub fn update(&mut self) {
 		if let Some(c) = get_char_pressed() {
 			// TODO: add hieroglyphs/emoji/other unicode symbols support
-			if c.is_ascii() || c.is_alphabetic() {
+			// If Ctrl pressed, we want to execute command
+			if (c.is_ascii() || c.is_alphabetic()) && !is_key_down(KeyCode::LeftControl) {
 				self.pre_caret.push(c);
 			}
 			else if let Some(key) = get_last_key_pressed() {
@@ -44,21 +55,12 @@ impl Editor {
 		);
 
 		// Concat vectors
-		let mut full_text: Vec<char> = Vec::new();
-		full_text.extend(&self.pre_caret);
-		full_text.extend(&self.selection);
-		// Reverse post_caret, because we are storing it in reversed order, for convenience
-		full_text.extend(self.post_caret.iter().rev().collect::<Vec<_>>());
-
-		// And convert them to string
-		let mut full_text: String = full_text.iter().collect();
-		full_text = full_text.replace("\t", "    ");
-
-		let dimensions = self.style.measure_text(&full_text);
+		let text = self.get_text().replace("\t", "    ");
 
 		// Draw editor content
-		for (i, line) in full_text.lines().enumerate() {
-			let y_coord = dimensions.height + (dimensions.height + self.style.line_spacing) * i as f32;
+		for (i, line) in text.lines().enumerate() {
+			let y_coord = self.style.dimensions.height * (i + 1) as f32
+					    + self.style.line_spacing * i as f32;
 
 			draw_text_ex(
 				line,
@@ -69,7 +71,7 @@ impl Editor {
 		}
 	}
 
-	pub fn execute_command(&mut self, key: KeyCode) {
+	fn execute_command(&mut self, key: KeyCode) {
 		match key {
 			// Indent
 			KeyCode::Tab => self.pre_caret.push('\t'),
@@ -101,7 +103,27 @@ impl Editor {
 				self.pre_caret.extend(self.post_caret.iter().rev().collect::<Vec<_>>());
 				self.post_caret.clear();
 			},
+			// New file
+			KeyCode::N if is_key_down(KeyCode::LeftControl) => self.new_file(),
+			// Open file
+			KeyCode::O if is_key_down(KeyCode::LeftControl) => self.open_file(),
+			// Save file as
+			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
+			// Save file
+			KeyCode::S if is_key_down(KeyCode::LeftControl) => self.save_file(),
 			_ => {},
 		};
+	}
+
+	fn get_text(&self) -> String {
+		// Concat vectors
+		let mut text: Vec<char> = Vec::new();
+		text.extend(&self.pre_caret);
+		text.extend(&self.selection);
+		// Reverse post_caret, because we are storing it in reversed order, for convenience
+		text.extend(self.post_caret.iter().rev().collect::<Vec<_>>());
+
+		// And convert them to string
+		text.iter().collect()
 	}
 }
