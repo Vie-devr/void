@@ -20,7 +20,7 @@ async fn main() {
 
 	loop {
 		editor.update();
-		editor.draw();
+		editor.draw(Rect::new(0., 0., screen_width(), screen_height()));
 
 		next_frame().await
 	}

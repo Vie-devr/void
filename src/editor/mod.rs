@@ -44,13 +44,13 @@ impl Editor {
 		}
 	}
 
-	pub fn draw(&self) {
+	pub fn draw(&self, drawing_rect: Rect) {
 		// Draw background
 		draw_rectangle(
-			0.,
-			0.,
-			screen_width(),
-			screen_height(),
+			drawing_rect.x,
+			drawing_rect.y,
+			drawing_rect.w,
+			drawing_rect.h,
 			self.style.background,
 		);
 

@@ -12,3 +12,6 @@ And then, for any platform:
 ```
 cargo run -r
 ```
+
+## Fonts
+JetBrains Mono: https://www.jetbrains.com/lp/mono/
