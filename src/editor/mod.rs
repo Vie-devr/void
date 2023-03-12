@@ -5,11 +5,16 @@ pub use style::*;
 
 use macroquad::prelude::*;
 
+const HOLDING_KEY_EXECUTION_START_DELAY: f32 = 0.5;
+const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.1;
+
 pub struct Editor {
 	content: Vec<char>,
 	cursor_pos: usize,
 	opened_file: Option<String>,
 	style: EditorStyle,
+	holding_key: Option<KeyCode>,
+	holding_timer: f32
 }
 
 impl Editor {
@@ -19,6 +24,8 @@ impl Editor {
 			cursor_pos: 0,
 			opened_file: None,
 			style,
+			holding_key: None,
+			holding_timer: 0.0,
 		};
 
 		// Open file if path is given
@@ -39,6 +46,23 @@ impl Editor {
 			}
 			else if let Some(key) = get_last_key_pressed() {
 				self.execute_command(key);
+				self.holding_key = Some(key);
+			}
+		}
+
+		if let Some(key) = self.holding_key {
+			// Pressed key was released
+			if is_key_released(key) {
+				self.holding_key = None;
+				self.holding_timer = 0.0;
+			}
+			else  {
+				self.holding_timer += get_frame_time();
+
+				if self.holding_timer >= HOLDING_KEY_EXECUTION_START_DELAY
+				&& self.holding_timer % HOLDING_KEY_EXECUTION_DELAY == 0.0 {
+					self.execute_command(key);
+				}
 			}
 		}
 	}
@@ -71,6 +95,58 @@ impl Editor {
 
 	fn execute_command(&mut self, key: KeyCode) {
 		match key {
+			// Ctrl Actions
+			// -----------------------------
+			// Move to the end of the nearest word at right
+			KeyCode::Right if is_key_down(KeyCode::LeftControl) => {
+				let mut move_amount = 0;
+				let mut reached_non_whitespace = false;
+
+				for i in self.cursor_pos..self.content.len() {
+					if !self.content[i].is_whitespace() {
+						reached_non_whitespace = true;
+					}
+					else if reached_non_whitespace && self.content[i].is_whitespace() {
+						break;
+					}
+
+					move_amount += 1;
+				}
+
+				self.cursor_pos += move_amount;
+			},
+			// Move to the start of the nearest word at left
+			KeyCode::Left if is_key_down(KeyCode::LeftControl) => {
+				let mut move_amount = 0;
+				let mut reached_non_whitespace = false;
+
+				for i in (0..self.cursor_pos).rev() {
+					if !self.content[i].is_whitespace() {
+						reached_non_whitespace = true;
+					}
+					else if reached_non_whitespace && self.content[i].is_whitespace() {
+						break;
+					}
+
+					move_amount += 1;
+				}
+
+				self.cursor_pos -= move_amount;
+			},
+			// Move to the start of document
+			KeyCode::Up if is_key_down(KeyCode::LeftControl) => self.cursor_pos = 0,
+			// Move to the start of document
+			KeyCode::Down if is_key_down(KeyCode::LeftControl) => self.cursor_pos = self.content.len() - 1,
+			// New file
+			KeyCode::N if is_key_down(KeyCode::LeftControl) => self.new_file(),
+			// Open file
+			KeyCode::O if is_key_down(KeyCode::LeftControl) => self.open_file(),
+			// Save file
+			KeyCode::S if is_key_down(KeyCode::LeftControl) => self.save_file(),
+			// Save file as
+			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
+			// Other Actions
+			// -----------------------------
 			// Indent
 			KeyCode::Tab => {
 				self.content.insert(self.cursor_pos, '\t');
@@ -88,32 +164,18 @@ impl Editor {
 			},
 			// Delete char after caret
 			KeyCode::Delete => { self.content.remove(self.cursor_pos); },
-			// Move caret to the left by one char
-			KeyCode::Left => {
-				if self.cursor_pos > 0 {
-					self.cursor_pos -= 1;
-				}
-			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
 				if self.cursor_pos + 1 < self.content.len() {
 					self.cursor_pos += 1;
 				}
 			},
-			// Ctrl Actions
-			// -----------------------------
-			// Move to the start of document
-			KeyCode::Up if is_key_down(KeyCode::LeftControl) => self.cursor_pos = 0,
-			// Move to the start of document
-			KeyCode::Down if is_key_down(KeyCode::LeftControl) => self.cursor_pos = self.content.len() - 1,
-			// New file
-			KeyCode::N if is_key_down(KeyCode::LeftControl) => self.new_file(),
-			// Open file
-			KeyCode::O if is_key_down(KeyCode::LeftControl) => self.open_file(),
-			// Save file
-			KeyCode::S if is_key_down(KeyCode::LeftControl) => self.save_file(),
-			// Save file as
-			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
+			// Move caret to the left by one char
+			KeyCode::Left => {
+				if self.cursor_pos > 0 {
+					self.cursor_pos -= 1;
+				}
+			},
 			_ => {},
 		};
 	}
