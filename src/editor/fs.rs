@@ -3,9 +3,7 @@ use std::fs;
 
 impl super::Editor {
 	pub(super) fn new_file(&mut self) {
-		self.pre_caret.clear();
-		self.selection.clear();
-		self.post_caret.clear();
+		self.content.clear();
 		self.opened_file = None;
 	}
 
@@ -19,13 +17,14 @@ impl super::Editor {
 	pub(super) fn open_file_from_path(&mut self, path: String) {
 		if let Ok(data) = fs::read_to_string(path.clone()) {
 			self.opened_file = Some(path);
-			self.post_caret = data.replace("    ", "\t").chars().rev().collect();
+			self.content = data.replace("    ", "\t").chars().collect();
+			self.cursor_pos = 0;
 		}
 	}
 	
 	pub(super) fn save_file(&mut self) {
 		if let Some(path) = &self.opened_file {
-			fs::write(path, self.get_text()).unwrap();
+			fs::write(path, self.content_as_text()).unwrap();
 		}
 		else {
 			self.save_file_as();

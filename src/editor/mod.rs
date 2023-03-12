@@ -6,9 +6,8 @@ pub use style::*;
 use macroquad::prelude::*;
 
 pub struct Editor {
-	pre_caret: Vec<char>,
-	selection: Vec<char>,
-	post_caret: Vec<char>,
+	content: Vec<char>,
+	cursor_pos: usize,
 	opened_file: Option<String>,
 	style: EditorStyle,
 }
@@ -16,9 +15,8 @@ pub struct Editor {
 impl Editor {
 	pub fn new(opened_file: Option<String>, style: EditorStyle) -> Self {
 		let mut result = Self {
-			pre_caret: Vec::new(),
-			selection: Vec::new(),
-			post_caret: Vec::new(),
+			content: Vec::new(),
+			cursor_pos: 0,
 			opened_file: None,
 			style,
 		};
@@ -33,10 +31,11 @@ impl Editor {
 
 	pub fn update(&mut self) {
 		if let Some(c) = get_char_pressed() {
-			// TODO: add hieroglyphs/emoji/other unicode symbols support
+			// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
 			// If Ctrl pressed, we want to execute command
 			if (c.is_ascii() || c.is_alphabetic()) && !is_key_down(KeyCode::LeftControl) {
-				self.pre_caret.push(c);
+				self.content.insert(self.cursor_pos, c);
+				self.cursor_pos += 1;
 			}
 			else if let Some(key) = get_last_key_pressed() {
 				self.execute_command(key);
@@ -54,8 +53,7 @@ impl Editor {
 			self.style.background,
 		);
 
-		// Concat vectors
-		let text = self.get_text().replace("\t", "    ");
+		let text = self.content_as_text().replace("\t", "    ");
 
 		// Draw editor content
 		for (i, line) in text.lines().enumerate() {
@@ -74,56 +72,53 @@ impl Editor {
 	fn execute_command(&mut self, key: KeyCode) {
 		match key {
 			// Indent
-			KeyCode::Tab => self.pre_caret.push('\t'),
+			KeyCode::Tab => {
+				self.content.insert(self.cursor_pos, '\t');
+				self.cursor_pos += 1;
+			},
 			// Print new line
-			KeyCode::Enter => self.pre_caret.push('\n'),
+			KeyCode::Enter => {
+				self.content.insert(self.cursor_pos, '\n');
+				self.cursor_pos += 1;
+			},
 			// Delete char before caret
-			KeyCode::Backspace => { self.pre_caret.pop(); },
+			KeyCode::Backspace => {
+				self.content.remove(self.cursor_pos - 1);
+				self.cursor_pos -= 1;
+			},
 			// Delete char after caret
-			KeyCode::Delete => { self.post_caret.pop(); },
+			KeyCode::Delete => { self.content.remove(self.cursor_pos); },
 			// Move caret to the left by one char
 			KeyCode::Left => {
-				if let Some(element) = self.pre_caret.pop() {
-					self.post_caret.push(element);
+				if self.cursor_pos > 0 {
+					self.cursor_pos -= 1;
 				}
 			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
-				if let Some(element) = self.post_caret.pop() {
-					self.pre_caret.push(element);
+				if self.cursor_pos + 1 < self.content.len() {
+					self.cursor_pos += 1;
 				}
 			},
+			// Ctrl Actions
+			// -----------------------------
 			// Move to the start of document
-			KeyCode::Up if is_key_down(KeyCode::LeftControl) => {
-				self.post_caret.extend(self.pre_caret.iter().rev().collect::<Vec<_>>());
-				self.pre_caret.clear();
-			},
+			KeyCode::Up if is_key_down(KeyCode::LeftControl) => self.cursor_pos = 0,
 			// Move to the start of document
-			KeyCode::Down if is_key_down(KeyCode::LeftControl) => {
-				self.pre_caret.extend(self.post_caret.iter().rev().collect::<Vec<_>>());
-				self.post_caret.clear();
-			},
+			KeyCode::Down if is_key_down(KeyCode::LeftControl) => self.cursor_pos = self.content.len() - 1,
 			// New file
 			KeyCode::N if is_key_down(KeyCode::LeftControl) => self.new_file(),
 			// Open file
 			KeyCode::O if is_key_down(KeyCode::LeftControl) => self.open_file(),
-			// Save file as
-			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
 			// Save file
 			KeyCode::S if is_key_down(KeyCode::LeftControl) => self.save_file(),
+			// Save file as
+			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
 			_ => {},
 		};
 	}
 
-	fn get_text(&self) -> String {
-		// Concat vectors
-		let mut text: Vec<char> = Vec::new();
-		text.extend(&self.pre_caret);
-		text.extend(&self.selection);
-		// Reverse post_caret, because we are storing it in reversed order, for convenience
-		text.extend(self.post_caret.iter().rev().collect::<Vec<_>>());
-
-		// And convert them to string
-		text.iter().collect()
+	fn content_as_text(&self) -> String {
+		self.content.iter().collect()
 	}
 }
