@@ -1,0 +1,13 @@
+{
+	"tokens": [
+		{
+			"type": "string",
+			"start": "\"",
+			"end": "\""
+		},
+		{
+			"type": "keyword",
+			"match": "\b(let|fn)\b"
+		}
+	]
+}
