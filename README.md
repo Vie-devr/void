@@ -11,7 +11,7 @@ And then, for any platform:
 ```
 cargo run -r
 ```
-Or launch build.sh, if you are on debian/derivative and wanna make .deb package and Windows executable
+Or launch build.sh, if you are on debian/derivative and wanna make .deb package and/or Windows executable
 
 ## Fonts
 JetBrains Mono: https://www.jetbrains.com/lp/mono/
