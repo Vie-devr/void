@@ -62,7 +62,7 @@ then
 	echo "Cleaning up..."
 
 	# Cleanup
-	rm -rf "target/x86_64-pc-windows-gnu/release/"
+	rm -rf "target/x86_64-pc-windows-gnu/"
 
 	echo "Done!"
 fi
