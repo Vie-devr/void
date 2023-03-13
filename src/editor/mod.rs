@@ -5,16 +5,18 @@ pub use style::*;
 
 use macroquad::prelude::*;
 
-const HOLDING_KEY_EXECUTION_START_DELAY: f32 = 0.5;
-const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.1;
+const HOLDING_KEY_EXECUTION_START_DELAY: f32 = 0.4;
+const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.025;
 
 pub struct Editor {
 	content: Vec<char>,
 	cursor_pos: usize,
 	opened_file: Option<String>,
 	style: EditorStyle,
+	// Holding key stuff
 	holding_key: Option<KeyCode>,
-	holding_timer: f32
+	holding_char: Option<char>,
+	holding_timer: f32,
 }
 
 impl Editor {
@@ -25,6 +27,7 @@ impl Editor {
 			opened_file: None,
 			style,
 			holding_key: None,
+			holding_char: None,
 			holding_timer: 0.0,
 		};
 
@@ -37,31 +40,27 @@ impl Editor {
 	}
 
 	pub fn update(&mut self) {
-		if let Some(c) = get_char_pressed() {
-			// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
-			// If Ctrl pressed, we want to execute command
-			if (c.is_ascii() || c.is_alphabetic()) && !is_key_down(KeyCode::LeftControl) {
-				self.content.insert(self.cursor_pos, c);
-				self.cursor_pos += 1;
-			}
-			else if let Some(key) = get_last_key_pressed() {
-				self.execute_command(key);
-				self.holding_key = Some(key);
-			}
+		if let Some(key) = get_last_key_pressed() {
+			self.holding_key = Some(key);
+			self.holding_char = Some(get_char_pressed().unwrap());
+
+			self.execute_command(key);
 		}
 
+		// User hodling any key
 		if let Some(key) = self.holding_key {
 			// Pressed key was released
 			if is_key_released(key) {
 				self.holding_key = None;
 				self.holding_timer = 0.0;
 			}
-			else  {
+			else {
 				self.holding_timer += get_frame_time();
-
-				if self.holding_timer >= HOLDING_KEY_EXECUTION_START_DELAY
-				&& self.holding_timer % HOLDING_KEY_EXECUTION_DELAY == 0.0 {
+				
+				// Checking if user holds key at least {HOLDING_KEY_EXECUTION_START_DELAY} seconds, and executing command with {HOLDING_KEY_EXECUTION_DELAY} delay
+				if self.holding_timer >= HOLDING_KEY_EXECUTION_START_DELAY + HOLDING_KEY_EXECUTION_DELAY {
 					self.execute_command(key);
+					self.holding_timer = HOLDING_KEY_EXECUTION_START_DELAY;
 				}
 			}
 		}
@@ -159,11 +158,17 @@ impl Editor {
 			},
 			// Delete char before caret
 			KeyCode::Backspace => {
-				self.content.remove(self.cursor_pos - 1);
-				self.cursor_pos -= 1;
+				if self.cursor_pos > 0 {
+					self.content.remove(self.cursor_pos - 1);
+					self.cursor_pos -= 1;
+				}
 			},
 			// Delete char after caret
-			KeyCode::Delete => { self.content.remove(self.cursor_pos); },
+			KeyCode::Delete => {
+				if self.cursor_pos + 1 < self.content.len() {
+					self.content.remove(self.cursor_pos);
+				}
+			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
 				if self.cursor_pos + 1 < self.content.len() {
@@ -176,7 +181,15 @@ impl Editor {
 					self.cursor_pos -= 1;
 				}
 			},
-			_ => {},
+			// Print character
+			_ => {
+				// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
+				let c = self.holding_char.unwrap();
+				if c.is_ascii() || c.is_alphabetic() {
+					self.content.insert(self.cursor_pos, c);
+					self.cursor_pos += 1;
+				}
+			},
 		};
 	}
 
