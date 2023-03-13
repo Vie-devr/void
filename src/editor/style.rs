@@ -8,15 +8,17 @@ pub struct EditorStyle {
 	pub dimensions: TextDimensions,
 	pub text_padding: f32,
 	pub line_spacing: f32,
+	pub caret_width: f32,
 	pub font: Font,
 	pub font_size: u16,
 	pub font_scale: f32,
 	pub background: Color,
 	pub text: Color,
+	pub caret: Color,
 }
 
 impl EditorStyle {
-	pub fn new(text_padding: f32, line_spacing: f32, font: Font, font_size: u16, font_scale: f32, background: Color, text: Color) -> Self {
+	pub fn new(text_padding: f32, line_spacing: f32, caret_width: f32, font: Font, font_size: u16, font_scale: f32, background: Color, text: Color, caret: Color) -> Self {
 		Self {
 			text_params: TextParams{
 				font,
@@ -29,11 +31,13 @@ impl EditorStyle {
 			dimensions: measure_text("T", Some(font), font_size, font_scale),
 			text_padding,
 			line_spacing,
+			caret_width,
 			font,
 			font_size,
 			font_scale,
 			background,
 			text,
+			caret,
 		}
 	}
 }

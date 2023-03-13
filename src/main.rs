@@ -10,10 +10,12 @@ async fn main() {
 		editor::EditorStyle::new(
 			7.5,
 			4.8,
+			2.0,
 			load_ttf_font_from_bytes(include_bytes!("../res/jet_brains_mono.ttf")).unwrap(),
 			80,
 			0.25,
 			Color::from_rgba(45, 45, 45, 255),
+			Color::from_rgba(201, 209, 217, 255),
 			Color::from_rgba(201, 209, 217, 255),
 		),
 	);

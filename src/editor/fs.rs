@@ -18,7 +18,7 @@ impl super::Editor {
 		if let Ok(data) = fs::read_to_string(path.clone()) {
 			self.opened_file = Some(path);
 			self.content = data.replace("    ", "\t").chars().collect();
-			self.cursor_pos = 0;
+			self.caret_pos = 0;
 		}
 	}
 	
