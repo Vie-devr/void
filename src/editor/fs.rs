@@ -5,7 +5,7 @@ impl super::Editor {
 	pub(super) fn new_file(&mut self) {
 		self.content.clear();
 		self.opened_file = None;
-		self.caret_pos = (0, 0);
+		self.caret_pos = 0;
 
 		self.update_lines();
 	}
