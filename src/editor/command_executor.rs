@@ -5,50 +5,17 @@ impl super::Editor {
 		match key {
 			// Ctrl Actions
 			// -----------------------------
-			// Move to the end of the nearest word at right
-			KeyCode::Right if is_key_down(KeyCode::LeftControl) => {
-				let mut move_amount = 0;
-				let mut reached_word = false;
-
-				for i in self.caret_pos..self.content.len() {
-					let is_word_char = self.content[i].is_alphabetic() || (reached_word && self.content[i] == '_');
-
-					if is_word_char {
-						reached_word = true;
-					}
-					else if reached_word && !is_word_char {
-						break;
-					}
-
-					move_amount += 1;
-				}
-
-				self.caret_pos += move_amount;
-			},
-			// Move to the start of the nearest word at left
-			KeyCode::Left if is_key_down(KeyCode::LeftControl) => {
-				let mut move_amount = 0;
-				let mut reached_word = false;
-
-				for i in (0..self.caret_pos).rev() {
-					let is_word_char = self.content[i].is_alphabetic() || (reached_word && self.content[i] == '_');
-
-					if is_word_char {
-						reached_word = true;
-					}
-					else if reached_word && !is_word_char {
-						break;
-					}
-
-					move_amount += 1;
-				}
-
-				self.caret_pos -= move_amount;
-			},
 			// Move to the start of document
-			KeyCode::Up if is_key_down(KeyCode::LeftControl) => self.caret_pos = 0,
+			KeyCode::Up if is_key_down(KeyCode::LeftControl) => self.caret_pos = (0, 0),
 			// Move to the start of document
-			KeyCode::Down if is_key_down(KeyCode::LeftControl) => self.caret_pos = self.content.len(),
+			KeyCode::Down if is_key_down(KeyCode::LeftControl) => {
+				let last_line = self.lines.last().unwrap();
+
+				self.caret_pos = (
+					self.lines.len() - 1,
+					last_line.end - last_line.start,
+				);
+			},
 			// New file
 			KeyCode::N if is_key_down(KeyCode::LeftControl) => self.new_file(),
 			// Open file
@@ -61,37 +28,62 @@ impl super::Editor {
 			// -----------------------------
 			// Indent
 			KeyCode::Tab => {
-				self.content.insert(self.caret_pos, '\t');
-				self.caret_pos += 1;
+				self.content.insert(self.caret_abs_pos(), '\t');
+				self.caret_pos.1 += 1;
 			},
 			// Print new line
 			KeyCode::Enter => {
-				self.content.insert(self.caret_pos, '\n');
-				self.caret_pos += 1;
+				self.content.insert(self.caret_abs_pos(), '\n');
+				self.caret_pos.0 += 1;
+				self.caret_pos.1 = 0;
+
+				self.update_lines();
 			},
 			// Delete char before caret
 			KeyCode::Backspace => {
-				if self.caret_pos > 0 {
-					self.content.remove(self.caret_pos - 1);
-					self.caret_pos -= 1;
+				if self.caret_abs_pos() > 0 {
+					self.content.remove(self.caret_abs_pos() - 1);
+					self.caret_pos.1 -= 1;
 				}
+
+				self.update_lines();
 			},
 			// Delete char after caret
 			KeyCode::Delete => {
-				if self.caret_pos < self.content.len() {
-					self.content.remove(self.caret_pos);
+				if self.caret_abs_pos() < self.content.len() {
+					self.content.remove(self.caret_abs_pos());
 				}
+
+				self.update_lines();
 			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
-				if self.caret_pos < self.content.len() {
-					self.caret_pos += 1;
+			    // Caret is not at the end of line
+			    if self.caret_pos.1 < self.lines[self.caret_pos.0].end {
+			        // Move caret right
+			        self.caret_pos.1 += 1;
+			    }
+			    // Caret is at the end of line and not at last line
+			    else if self.caret_pos.0 < self.lines.len() - 1 {
+			        // Move caret to the next line
+			        self.caret_pos.0 += 1;
+			        // Move caret to the start of line
+			        self.caret_pos.1 = 0;
 				}
 			},
 			// Move caret to the left by one char
 			KeyCode::Left => {
-				if self.caret_pos > 0 {
-					self.caret_pos -= 1;
+				// Caret is not at the start of line
+				if self.caret_pos.1 > 0 {
+					// Move left
+					self.caret_pos.1 -= 1;
+				}
+				// Caret is at the start of line and not at first line
+				else if self.caret_pos.0 > 0 {
+					// Move caret down
+					self.caret_pos.0 -= 1;
+					// Move caret to the line's end
+			        self.caret_pos.1 = self.lines[self.caret_pos.0 - 1].end;
 				}
 			},
 			// Print character
@@ -99,8 +91,14 @@ impl super::Editor {
 				let c = self.holding_char.unwrap();
 				// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
 				if c.is_ascii() || c.is_alphabetic() {
-					self.content.insert(self.caret_pos, c);
-					self.caret_pos += 1;
+					// Insert character
+					self.content.insert(self.caret_abs_pos(), c);
+					// Move caret
+					self.caret_pos.1 += 1;
+					// Increase current line length
+					self.lines[self.caret_pos.0].end += 1;
+
+					self.update_lines();
 				}
 			},
 		};

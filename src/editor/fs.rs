@@ -5,6 +5,9 @@ impl super::Editor {
 	pub(super) fn new_file(&mut self) {
 		self.content.clear();
 		self.opened_file = None;
+		self.caret_pos = (0, 0);
+
+		self.update_lines();
 	}
 
 	pub(super) fn open_file(&mut self) {
@@ -18,7 +21,8 @@ impl super::Editor {
 		if let Ok(data) = fs::read_to_string(path.clone()) {
 			self.opened_file = Some(path);
 			self.content = data.replace("    ", "\t").chars().collect();
-			self.caret_pos = 0;
+
+			self.update_lines();
 		}
 	}
 	

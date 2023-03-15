@@ -11,7 +11,9 @@ const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.025;
 
 pub struct Editor {
 	content: Vec<char>,
-	caret_pos: usize,
+	lines: Vec<Line>,
+	/// caret_pos.0 - line which caret is on, caret_pos.1 - caret position in this line
+	caret_pos: (usize, usize),
 	opened_file: Option<String>,
 	style: EditorStyle,
 	// Holding keys stuff
@@ -20,11 +22,17 @@ pub struct Editor {
 	holding_timer: f32,
 }
 
+struct Line {
+	start: usize,
+	end: usize,
+}
+
 impl Editor {
 	pub fn new(opened_file: Option<String>, style: EditorStyle) -> Self {
 		let mut result = Self {
-			content: Vec::new(),
-			caret_pos: 0,
+			content: vec!['\n'],
+			lines: vec![Line::new(0, 1)],
+			caret_pos: (0, 0),
 			opened_file: None,
 			style,
 			holding_key: None,
@@ -65,6 +73,11 @@ impl Editor {
 				}
 			}
 		}
+
+		// Content is not empty and not ends with a new line
+		if self.content.is_empty() || self.content.last().unwrap() != &'\n' {
+			self.content.push('\n');
+		}
 	}
 
 	pub fn draw(&self, drawing_rect: Rect) {
@@ -92,11 +105,11 @@ impl Editor {
 			);
 		}
 
-		let caret_pos = self.get_caret_screen_position();
+		let caret_screen_pos = self.caret_screen_position();
 
 		draw_rectangle(
-			caret_pos.0,
-			caret_pos.1,
+			caret_screen_pos.0,
+			caret_screen_pos.1,
 			self.style.caret_width,
 			self.style.dimensions.height,
 			self.style.caret,
@@ -104,37 +117,45 @@ impl Editor {
 	}
 
 	fn content_as_text(&self) -> String {
-		self.content.iter().collect()
+		String::from_iter(self.content.iter())
 	}
 
-	fn get_caret_screen_position(&self) -> (f32, f32) {
-		let slice = &self.content[..self.caret_pos];
-		let slice_str: String = slice.iter().collect();
-		
+	fn caret_abs_pos(&self) -> usize {
+		self.lines[self.caret_pos.0].start + self.caret_pos.1
+	}
+
+	fn caret_screen_position(&self) -> (f32, f32) {
 		let mut pos = (
 			self.style.text_padding,
 			self.style.text_padding,
 		);
 
-		// Count distance between caret_pos and previous '\n'
-		for c in slice.iter().rev() {
-			if c == &'\n' {
-				break;
-			}
-
-			if c == &'\t' {
-				pos.0 += self.style.dimensions.width * 4.0;
-				continue;
-			}
-
-			pos.0 += self.style.dimensions.width;
-		}
-
-		let caret_line = slice_str.matches('\n').count() as f32;
-
-		pos.1 += caret_line * self.style.dimensions.height
-			   + caret_line * self.style.line_spacing;
+		pos.0 += self.caret_pos.1 as f32 * self.style.dimensions.width;
+		pos.1 += self.caret_pos.0 as f32 * self.style.dimensions.height
+			   + self.caret_pos.0 as f32 * self.style.line_spacing;
 
 		pos
+	}
+
+	pub fn update_lines(&mut self) {
+		self.lines = Vec::new();
+
+		let mut begin = 0;
+
+		for (i, c) in self.content.iter().enumerate() {
+			if c == &'\n' {
+				self.lines.push(Line::new(begin, i));
+				begin = i + 1;
+			}
+		}
+	}
+}
+
+impl Line {
+	fn new(start: usize, end: usize) -> Self {
+		Self {
+			start,
+			end,
+		}
 	}
 }
