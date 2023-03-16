@@ -54,12 +54,13 @@ impl super::Editor {
 			},
 			// Print character
 			_ => {
-				let c = self.holding_char.unwrap();
-				// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
-				if c.is_ascii() || c.is_alphabetic() {
-					self.content.insert(self.caret_pos, c);
-					self.caret_pos += 1;
-					self.update_lines();
+				if let Some(c) = self.holding_char {
+					// TOneverDO: add hieroglyphs/emoji/other unicode symbols support
+					if c.is_ascii() || c.is_alphabetic() {
+						self.content.insert(self.caret_pos, c);
+						self.caret_pos += 1;
+						self.update_lines();
+					}
 				}
 			},
 		};
@@ -87,9 +88,7 @@ impl super::Editor {
 
 	fn move_to_line(&mut self, i: i32) {
 		// Line exists
-		if i >= 0 && (i as usize) < self.lines.len() {
-			let new_line = &self.lines[i as usize];
-
+		if let Some(new_line) = self.lines.get(i as usize) {
 			// Move to the new line
 			self.caret_pos = new_line.start + usize::min(self.caret_col(), new_line.end - new_line.start);
 		}

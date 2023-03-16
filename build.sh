@@ -2,14 +2,14 @@
 
 if [ ! -d "build/" ];
 then
-	mkdir "build/"
+	mkdir -p "build/"
 fi
 
 read -p "Build .deb package (y/n): " build_deb
 read -p "Build Windows executable (y/n): " build_win
 
 # Build .deb package
-if [ $build_deb == "y" ] || [ $build_deb == "Y" ];
+if [ "$build_deb" == "y" ] || [ "$build_deb" == "Y" ];
 then
 	read -p "Version: " version
 	read -p "Revision: " revision
@@ -20,8 +20,8 @@ then
 	
 	cargo build -r
 
-	mkdir $deb_root
-	mkdir "${deb_root}/DEBIAN/"
+	mkdir -p "$deb_root"
+	mkdir -p "${deb_root}/DEBIAN/"
 	echo """Package: void
 Version: ${version}
 Architecture: amd64
@@ -30,18 +30,19 @@ Description: Code editor written in Rust just for fun.
 """ > "${deb_root}/DEBIAN/control"
 
 	mkdir -p "${deb_root}/usr/bin/"
+	strip --strip-all target/release/void
 	cp -r "target/release/void" "${deb_root}/usr/bin/"
 
 	mkdir -p "${deb_root}/usr/share/void/"
 	cp -r "grammars/" "grammars.json" "${deb_root}/usr/share/void/"
 
-	dpkg-deb --build --root-owner-group $deb_root
+	dpkg-deb --build --root-owner-group "$deb_root"
 	mv "${deb_root}.deb" "build/"
 
 	echo "Cleaning up..."
 
 	# Cleanup
-	rm -rf $deb_root
+	rm -rf "$deb_root"
 	rm -rf "target/release/"
 
 	echo "Done!"
@@ -49,7 +50,7 @@ fi
 # End building .deb package
 
 # Build Windows executable
-if [ $build_win == "y" ] || [ $build_win == "Y" ];
+if [ "$build_win" == "y" ] || [ "$build_win" == "Y" ];
 then
 	echo "Building Windows executable..."
 
