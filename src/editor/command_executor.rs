@@ -28,28 +28,12 @@ impl super::Editor {
 			KeyCode::Enter => {
 				self.content.insert(self.caret_pos, '\n');
 				self.caret_pos += 1;
-
 				self.update_lines();
 			},
 			// Delete char before caret
-			KeyCode::Backspace => {
-				// Caret is not at the start of document
-				if self.caret_pos > 0 {
-					self.content.remove(self.caret_pos - 1);
-					self.caret_pos -= 1;
-
-					self.update_lines();
-				}
-			},
+			KeyCode::Backspace => self.delete_char(self.caret_pos as i32 - 1),
 			// Delete char after caret
-			KeyCode::Delete => {
-				// Char after caret exists
-				if self.caret_pos < self.content.len() {
-					self.content.remove(self.caret_pos);
-
-					self.update_lines();
-				}
-			},
+			KeyCode::Delete => self.delete_char(self.caret_pos as i32),
 			// Move caret to the right by one char
 			KeyCode::Right => {
 			    // Caret is not at the end of document
@@ -71,10 +55,29 @@ impl super::Editor {
 				if c.is_ascii() || c.is_alphabetic() {
 					self.content.insert(self.caret_pos, c);
 					self.caret_pos += 1;
-
 					self.update_lines();
 				}
 			},
 		};
+	}
+
+	fn delete_char(&mut self, i: i32) {
+		// Character we want to delete is in content bounds
+		if i >= 0 && (i as usize) < self.content.len() {
+			let i = i as usize;
+
+			self.content.remove(i);
+
+			// We need at least one line in the document
+			if self.content.is_empty() || self.content.last().unwrap() != &'\n' {
+				self.content.push('\n');
+			}
+
+			self.update_lines();
+
+			if i < self.caret_pos {
+				self.caret_pos -= 1;
+			}
+		}
 	}
 }

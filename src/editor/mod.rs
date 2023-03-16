@@ -41,7 +41,7 @@ impl Editor {
 			holding_timer: 0.0,
 		};
 
-		// Open file if path is given
+		// Open file if path given
 		if let Some(path) = opened_file {
 			result.open_file_from_path(path);
 		}
@@ -52,6 +52,7 @@ impl Editor {
 	pub fn update(&mut self) {
 		// Pressed any key
 		if let Some(key) = get_last_key_pressed() {
+			// Reset key holding stuff
 			self.holding_key = Some(key);
 			self.holding_char = Some(get_char_pressed().unwrap());
 			self.holding_timer = 0.0;
@@ -70,8 +71,10 @@ impl Editor {
 				
 				// Checking if user holds key at least {HOLDING_KEY_EXECUTION_START_DELAY} seconds, and executing command with {HOLDING_KEY_EXECUTION_DELAY} delay
 				if self.holding_timer >= HOLDING_KEY_EXECUTION_START_DELAY + HOLDING_KEY_EXECUTION_DELAY {
-					self.execute_command(key);
+					// Reset timer
 					self.holding_timer = HOLDING_KEY_EXECUTION_START_DELAY;
+	
+					self.execute_command(key);
 				}
 			}
 		}
