@@ -8,6 +8,7 @@ async fn main() {
 	let mut editor = editor::Editor::new(
 		args().nth(1),
 		editor::EditorStyle::new(
+			4,
 			7.5,
 			4.8,
 			2.0,

@@ -102,7 +102,7 @@ impl Editor {
 			self.style.line_nums_background,
 		);
 
-		let text = self.content_as_text().replace("\t", "    ");
+		let text = self.content_as_text().replace("\t", &" ".repeat(self.style.tabs));
 
 		// Draw editor content
 		for (i, line) in text.lines().enumerate() {
@@ -120,8 +120,9 @@ impl Editor {
 			// Draw line
 			draw_text_ex(
 				line,
-				self.style.text_padding + drawing_rect.x + line_nums_bar_width,
-				self.style.text_padding + drawing_rect.y + y_coord,
+				drawing_rect.x + line_nums_bar_width + self.style.text_padding,
+				// With adding self.style.text_padding to the y coordinate it looks weird, lol
+				drawing_rect.y + y_coord,
 				self.style.text_params,
 			);
 		}

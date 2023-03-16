@@ -23,6 +23,7 @@ impl super::Editor {
 			KeyCode::Tab => {
 				self.content.insert(self.caret_pos, '\t');
 				self.caret_pos += 1;
+				self.update_lines();
 			},
 			// Print new line
 			KeyCode::Enter => {
@@ -72,11 +73,6 @@ impl super::Editor {
 			let i = i as usize;
 
 			self.content.remove(i);
-
-			// We need at least one line in the document
-			if self.content.is_empty() || self.content.last().unwrap() != &'\n' {
-				self.content.push('\n');
-			}
 
 			self.update_lines();
 

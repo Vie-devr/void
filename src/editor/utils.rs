@@ -16,7 +16,15 @@ impl super::Editor {
 	}
 
 	pub(super) fn caret_col(&self) -> usize {
-		self.caret_pos - self.lines[self.caret_row()].start
+		let line = &self.lines[self.caret_row()];
+		let col = self.caret_pos - line.start;
+		// Because we are rendering tab as n spaces, we need caret to move like there is n spaces
+		let tabs = self.content[line.start..self.caret_pos]
+						.iter()
+						.filter(|&c| c == &'\t')
+						.count();
+
+		col + tabs * (self.style.tabs - 1)
 	}
 
 	pub(super) fn caret_screen_pos(&self) -> (f32, f32) {
@@ -36,6 +44,11 @@ impl super::Editor {
 		let mut begin = 0;
 
 		self.lines = Vec::new();
+
+		// We need at least one line in the document
+		if self.content.is_empty() || self.content.last().unwrap() != &'\n' {
+			self.content.push('\n');
+		}
 
 		for (i, c) in self.content.iter().enumerate() {
 			if c == &'\n' {

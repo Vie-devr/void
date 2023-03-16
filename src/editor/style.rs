@@ -4,6 +4,7 @@ use macroquad::{
 };
 
 pub struct EditorStyle {
+	pub tabs: usize,
 	pub text_params: TextParams,
 	pub line_nums_params: TextParams,
 	pub dimensions: TextDimensions,
@@ -17,11 +18,12 @@ pub struct EditorStyle {
 }
 
 impl EditorStyle {
-	pub fn new(text_padding: f32, line_spacing: f32, caret_width: f32,
+	pub fn new(tabs: usize, text_padding: f32, line_spacing: f32, caret_width: f32,
 				font: Font, font_size: u16, font_scale: f32,
 				background: Color, text: Color, caret: Color,
 				line_nums_background: Color, line_nums_text: Color) -> Self {
 		Self {
+			tabs,
 			text_params: TextParams{
 				font,
 				font_size,
