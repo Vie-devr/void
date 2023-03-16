@@ -34,6 +34,10 @@ impl super::Editor {
 			KeyCode::Backspace => self.delete_char(self.caret_pos as i32 - 1),
 			// Delete char after caret
 			KeyCode::Delete => self.delete_char(self.caret_pos as i32),
+			// Move one line up
+			KeyCode::Up => self.move_to_line(self.caret_row() as i32 - 1),
+			// Move one line down
+			KeyCode::Down => self.move_to_line(self.caret_row() as i32 + 1),
 			// Move caret to the right by one char
 			KeyCode::Right => {
 			    // Caret is not at the end of document
@@ -78,6 +82,22 @@ impl super::Editor {
 			if i < self.caret_pos {
 				self.caret_pos -= 1;
 			}
+		}
+	}
+
+	fn move_to_line(&mut self, i: i32) {
+		// Line exists
+		if i >= 0 && (i as usize) < self.lines.len() {
+			let new_line = &self.lines[i as usize];
+
+			// Move to the new line
+			self.caret_pos = new_line.start + usize::min(self.caret_col(), new_line.end - new_line.start);
+		}
+		else if i < 0 {
+			self.caret_pos = 0;
+		}
+		else {
+			self.caret_pos = self.content.len() - 1;
 		}
 	}
 }

@@ -17,6 +17,8 @@ async fn main() {
 			Color::from_rgba(45, 45, 45, 255),
 			Color::from_rgba(201, 209, 217, 255),
 			Color::from_rgba(201, 209, 217, 255),
+			Color::from_rgba(55, 55, 55, 255),
+			Color::from_rgba(161, 149, 157, 255),
 		),
 	);
 
