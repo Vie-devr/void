@@ -41,10 +41,10 @@ impl super::Editor {
 			KeyCode::Down => self.move_to_line(self.caret_row() as i32 + 1),
 			// Move caret to the right by one char
 			KeyCode::Right => {
-			    // Caret is not at the end of document
-			    if self.caret_pos < self.content.len() {
-			        self.caret_pos += 1;
-			    }
+				// Caret is not at the end of document
+				if self.caret_pos < self.content.len() {
+					self.caret_pos += 1;
+				}
 			},
 			// Move caret to the left by one char
 			KeyCode::Left => {
