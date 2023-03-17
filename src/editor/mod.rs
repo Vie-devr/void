@@ -55,8 +55,11 @@ impl Editor {
 		if let Some(key) = get_last_key_pressed() {
 			// Reset key holding stuff
 			self.holding_key = Some(key);
-			self.holding_char = Some(get_char_pressed().unwrap());
 			self.holding_timer = 0.0;
+
+			if let Some(c) = get_char_pressed() {
+				self.holding_char = Some(c);
+			}
 
 			self.execute_command(key);
 		}

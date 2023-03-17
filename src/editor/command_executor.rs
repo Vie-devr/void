@@ -19,10 +19,22 @@ impl super::Editor {
 			KeyCode::S if is_key_down(KeyCode::LeftControl) && is_key_down(KeyCode::LeftShift) => self.save_file_as(),
 			// Other Actions
 			// -----------------------------
-			// Indent
+			// Delete tabulation at the start of line
+			KeyCode::Tab if is_key_down(KeyCode::LeftShift) => {
+				let line_start = self.lines[self.caret_row()].start;
+
+				if self.content[line_start] == '\t' {
+					self.content.remove(line_start);
+					self.caret_pos -= 1;
+
+					self.update_lines();
+				}
+			},
+			// Insert tabulation at the start of line
 			KeyCode::Tab => {
-				self.content.insert(self.caret_pos, '\t');
+				self.content.insert(self.lines[self.caret_row()].start, '\t');
 				self.caret_pos += 1;
+
 				self.update_lines();
 			},
 			// Print new line
@@ -32,9 +44,9 @@ impl super::Editor {
 				self.update_lines();
 			},
 			// Delete char before caret
-			KeyCode::Backspace => self.delete_char(self.caret_pos as i32 - 1),
+			KeyCode::Backspace => self.safe_delete_char(self.caret_pos as i32 - 1),
 			// Delete char after caret
-			KeyCode::Delete => self.delete_char(self.caret_pos as i32),
+			KeyCode::Delete => self.safe_delete_char(self.caret_pos as i32),
 			// Move one line up
 			KeyCode::Up => self.move_to_line(self.caret_row() as i32 - 1),
 			// Move one line down
@@ -67,7 +79,7 @@ impl super::Editor {
 		};
 	}
 
-	fn delete_char(&mut self, i: i32) {
+	fn safe_delete_char(&mut self, i: i32) {
 		// Character we want to delete is in content bounds
 		if i >= 0 && (i as usize) < self.content.len() {
 			let i = i as usize;
