@@ -44,13 +44,45 @@ impl super::Editor {
 				self.update_lines();
 			},
 			// Delete char before caret
-			KeyCode::Backspace => self.safe_delete_char(self.caret_pos as i32 - 1),
+			KeyCode::Backspace => {
+				if self.caret_pos > 0 {
+					self.caret_pos -= 1;
+					self.content.remove(self.caret_pos);
+
+					self.update_lines();
+				}
+			},
 			// Delete char after caret
-			KeyCode::Delete => self.safe_delete_char(self.caret_pos as i32),
+			KeyCode::Delete => {
+				// Caret is not at the end of document
+				if self.caret_pos < self.content.len() - 1 {
+					self.content.remove(self.caret_pos);
+
+					self.update_lines();
+				}
+			},
 			// Move one line up
-			KeyCode::Up => self.move_to_line(self.caret_row() as i32 - 1),
+			KeyCode::Up => {
+				let row = self.caret_row();
+
+				if row == 0 {
+					self.caret_pos = 0;
+					return;
+				}
+
+				self.move_to_line(row - 1);
+			}
 			// Move one line down
-			KeyCode::Down => self.move_to_line(self.caret_row() as i32 + 1),
+			KeyCode::Down => {
+				let row = self.caret_row();
+
+				if row == self.lines.len() - 1 {
+					self.caret_pos = self.content.len() - 1;
+					return;
+				}
+
+				self.move_to_line(self.caret_row() + 1);
+			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
 				// Caret is not at the end of document
@@ -60,7 +92,7 @@ impl super::Editor {
 			},
 			// Move caret to the left by one char
 			KeyCode::Left => {
-				// Caret is not at the start of line
+				// Caret is not at the start of document
 				if self.caret_pos > 0 {
 					self.caret_pos -= 1;
 				}
@@ -79,32 +111,9 @@ impl super::Editor {
 		};
 	}
 
-	fn safe_delete_char(&mut self, i: i32) {
-		// Character we want to delete is in content bounds
-		if i >= 0 && (i as usize) < self.content.len() {
-			let i = i as usize;
-
-			self.content.remove(i);
-
-			self.update_lines();
-
-			if i < self.caret_pos {
-				self.caret_pos -= 1;
-			}
-		}
-	}
-
-	fn move_to_line(&mut self, i: i32) {
-		// Line exists
-		if let Some(new_line) = self.lines.get(i as usize) {
-			// Move to the new line
-			self.caret_pos = new_line.start + usize::min(self.caret_col(), new_line.end - new_line.start);
-		}
-		else if i < 0 {
-			self.caret_pos = 0;
-		}
-		else {
-			self.caret_pos = self.content.len() - 1;
-		}
+	fn move_to_line(&mut self, i: usize) {
+		let new_line = &self.lines[i];
+		
+		self.caret_pos = new_line.start + usize::min(self.caret_col(), new_line.end - new_line.start);
 	}
 }
