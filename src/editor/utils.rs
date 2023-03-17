@@ -33,9 +33,11 @@ impl super::Editor {
 			self.style.text_padding,
 		);
 
-		pos.0 += self.caret_col() as f32 * self.style.dimensions.width;
-		pos.1 += self.caret_row() as f32 * self.style.dimensions.height
-			   + self.caret_row() as f32 * self.style.line_spacing;
+		let (col, row) = (self.caret_col() as f32, self.caret_row() as f32);
+
+		pos.0 += col * self.style.dimensions.width;
+		pos.1 += row * self.style.dimensions.height;
+		pos.1 += row * self.style.line_spacing;
 
 		pos
 	}

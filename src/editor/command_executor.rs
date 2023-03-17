@@ -42,7 +42,7 @@ impl super::Editor {
 			// Move caret to the right by one char
 			KeyCode::Right => {
 				// Caret is not at the end of document
-				if self.caret_pos < self.content.len() {
+				if self.caret_pos < self.content.len() - 1 {
 					self.caret_pos += 1;
 				}
 			},
