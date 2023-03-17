@@ -54,7 +54,6 @@ impl super::Editor {
 			},
 			// Delete char after caret
 			KeyCode::Delete => {
-				// Caret is not at the end of document
 				if self.caret_pos < self.content.len() - 1 {
 					self.content.remove(self.caret_pos);
 
@@ -85,14 +84,12 @@ impl super::Editor {
 			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
-				// Caret is not at the end of document
 				if self.caret_pos < self.content.len() - 1 {
 					self.caret_pos += 1;
 				}
 			},
 			// Move caret to the left by one char
 			KeyCode::Left => {
-				// Caret is not at the start of document
 				if self.caret_pos > 0 {
 					self.caret_pos -= 1;
 				}

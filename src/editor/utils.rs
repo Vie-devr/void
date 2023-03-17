@@ -43,8 +43,6 @@ impl super::Editor {
 	}
 
 	pub(super) fn update_lines(&mut self) {
-		let mut begin = 0;
-
 		self.lines = Vec::new();
 
 		// We need at least one line in the document
@@ -52,10 +50,12 @@ impl super::Editor {
 			self.content.push('\n');
 		}
 
+		let mut start = 0;
+
 		for (i, c) in self.content.iter().enumerate() {
 			if c == &'\n' {
-				self.lines.push(super::Line::new(begin, i));
-				begin = i + 1;
+				self.lines.push(super::Line::new(start, i));
+				start = i + 1;
 			}
 		}
 	}
