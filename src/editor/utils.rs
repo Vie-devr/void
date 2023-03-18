@@ -42,4 +42,8 @@ impl super::Editor {
 			}
 		}
 	}
+
+	pub(super) fn alphanumeric(c: char) -> bool {
+		c.is_alphanumeric() || c == '_'
+	}
 }

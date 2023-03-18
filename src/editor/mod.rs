@@ -51,15 +51,18 @@ impl Editor {
 	pub fn update(&mut self) {
 		// Pressed any key
 		if let Some(key) = get_last_key_pressed() {
-			// Reset key holding stuff
-			self.holding_key = Some(key);
-			self.holding_timer = 0.0;
+			// Some commands don't need to be executed if user holds key
+			if !self.execute_command_once(key) {
+				// Reset key holding stuff
+				self.holding_key = Some(key);
+				self.holding_timer = 0.0;
 
-			if let Some(c) = get_char_pressed() {
-				self.holding_char = Some(c);
+				if let Some(c) = get_char_pressed() {
+					self.holding_char = Some(c);
+				}
+
+				self.execute_command(key);
 			}
-
-			self.execute_command(key);
 		}
 
 		// User hodling any key
