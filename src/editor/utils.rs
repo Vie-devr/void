@@ -1,5 +1,3 @@
-use macroquad::prelude::*;
-
 impl super::Editor {
 	pub(super) fn content_as_text(&self) -> String {
 		String::from_iter(self.content.iter())
@@ -25,21 +23,6 @@ impl super::Editor {
 						.count();
 
 		col + tabs * (self.style.tabs - 1)
-	}
-
-	pub(super) fn caret_screen_pos(&self) -> (f32, f32) {
-		let mut pos = (
-			self.style.text_padding,
-			self.style.text_padding,
-		);
-
-		let (col, row) = (self.caret_col() as f32, self.caret_row() as f32);
-
-		pos.0 += col * self.style.dimensions.width;
-		pos.1 += row * self.style.dimensions.height;
-		pos.1 += row * self.style.line_spacing;
-
-		pos
 	}
 
 	pub(super) fn update_lines(&mut self) {

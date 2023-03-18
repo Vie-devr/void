@@ -13,7 +13,6 @@ const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.025;
 pub struct Editor {
 	content: Vec<char>,
 	lines: Vec<Line>,
-	/// caret_pos.0 - line which caret is on, caret_pos.1 - caret position in this line
 	caret_pos: usize,
 	opened_file: Option<String>,
 	style: EditorStyle,
@@ -23,7 +22,6 @@ pub struct Editor {
 	holding_timer: f32,
 }
 
-#[derive(Debug)]
 struct Line {
 	start: usize,
 	end: usize,
@@ -109,37 +107,56 @@ impl Editor {
 
 		// Draw editor content
 		for (i, line) in text.lines().enumerate() {
-			let y_coord = self.style.dimensions.height * (i + 1) as f32
-					    + self.style.line_spacing * i as f32;
+			let x = drawing_rect.x + self.style.text_padding + line_nums_bar_width;
+			let y = drawing_rect.y + self.style.text_padding
+				  + self.style.dimensions.height * (i + 1) as f32
+				  + self.style.line_spacing * i as f32;
 
 			// Draw line number
 			draw_text_ex(
+				// I am too lazy to make here real padding. just spaces.
 				&format!(" {} ", i + 1),
 				drawing_rect.x,
-				drawing_rect.y + y_coord,
+				y,
 				self.style.line_nums_params,
 			);
 
 			// Draw line
 			draw_text_ex(
 				line,
-				drawing_rect.x + line_nums_bar_width + self.style.text_padding,
-				// With adding self.style.text_padding to the y coordinate it looks weird, lol
-				drawing_rect.y + y_coord,
+				x,
+				y,
 				self.style.text_params,
 			);
+
+			if self.caret_row() == i {
+				let x = x + self.style.dimensions.width * self.caret_col() as f32;
+
+				// Draw caret
+				draw_rectangle(
+					x,
+					y - self.style.dimensions.height,
+					self.style.dimensions.width,
+					self.style.dimensions.height,
+					self.style.text,
+				);
+
+				let c = &self.content[self.caret_pos].to_string();
+
+				if c != "\n" {
+					let mut params = self.style.text_params;
+					params.color = self.style.background;
+
+					// Draw char over the caret
+					draw_text_ex(
+						c,
+						x,
+						y,
+						params,
+					);
+				}
+			}
 		}
-
-		let caret_screen_pos = self.caret_screen_pos();
-
-		// Draw caret
-		draw_rectangle(
-			caret_screen_pos.0 + drawing_rect.x + line_nums_bar_width,
-			caret_screen_pos.1 + drawing_rect.y,
-			self.style.caret_width,
-			self.style.dimensions.height,
-			self.style.caret,
-		);
 	}
 }
 
