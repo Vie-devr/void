@@ -151,9 +151,11 @@ impl super::Editor {
 				self.content.remove(self.caret_pos);
 			}
 		}
-	}
 
+		self.update_lines();
+	}
 	fn move_one_word_left(&mut self, delete_word: bool) {
+
 		while self.caret_pos > 0 && !alphanumeric(self.content[self.caret_pos - 1]) {
 			self.caret_pos -= 1;
 
@@ -169,5 +171,7 @@ impl super::Editor {
 				self.content.remove(self.caret_pos);
 			}
 		}
+
+		self.update_lines();
 	}
 }
