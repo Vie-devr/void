@@ -1,4 +1,5 @@
 mod editor;
+mod utils;
 
 use macroquad::prelude::*;
 use std::env::args;

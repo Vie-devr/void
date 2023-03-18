@@ -1,7 +1,6 @@
 mod style;
 mod fs;
 mod command_executor;
-mod utils;
 
 pub use style::*;
 
@@ -51,18 +50,15 @@ impl Editor {
 	pub fn update(&mut self) {
 		// Pressed any key
 		if let Some(key) = get_last_key_pressed() {
-			// Some commands don't need to be executed if user holds key
-			if !self.execute_command_once(key) {
-				// Reset key holding stuff
-				self.holding_key = Some(key);
-				self.holding_timer = 0.0;
+			// Reset key holding stuff
+			self.holding_key = Some(key);
+			self.holding_timer = 0.0;
 
-				if let Some(c) = get_char_pressed() {
-					self.holding_char = Some(c);
-				}
-
-				self.execute_command(key);
+			if let Some(c) = get_char_pressed() {
+				self.holding_char = Some(c);
 			}
+
+			self.execute_command(key);
 		}
 
 		// User hodling any key
@@ -158,6 +154,45 @@ impl Editor {
 						params,
 					);
 				}
+			}
+		}
+	}
+	
+	fn content_as_text(&self) -> String {
+		String::from_iter(self.content.iter())
+	}
+
+	fn caret_row(&self) -> usize {
+		for (i, line) in self.lines.iter().enumerate() {
+			if self.caret_pos >= line.start && self.caret_pos <= line.end {
+				return i;
+			}
+		}
+
+		0
+	}
+
+	fn caret_col(&self) -> usize {
+		let line = &self.lines[self.caret_row()];
+		let col = self.caret_pos - line.start;
+		// Because we are rendering tab as n spaces, we need caret to move like there is n spaces
+		let tabs = self.content[line.start..self.caret_pos]
+						.iter()
+						.filter(|&c| c == &'\t')
+						.count();
+
+		col + tabs * (self.style.tabs - 1)
+	}
+
+	fn update_lines(&mut self) {
+		let mut start = 0;
+
+		self.lines = Vec::new();
+
+		for (i, c) in self.content.iter().enumerate() {
+			if c == &'\n' {
+				self.lines.push(Line::new(start, i));
+				start = i + 1;
 			}
 		}
 	}

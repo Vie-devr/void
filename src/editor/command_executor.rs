@@ -1,33 +1,11 @@
 use macroquad::prelude::*;
+use crate::utils::alphanumeric;
 
 impl super::Editor {
-	pub(super) fn execute_command_once(&mut self, key: KeyCode) -> bool {
-		let ctrl = is_key_down(KeyCode::LeftControl);
-		let shift = is_key_down(KeyCode::LeftShift);
-
-		match key {
-			// Ctrl Actions
-			// -----------------------------
-			// New file
-			KeyCode::N if ctrl => self.new_file(),
-			// Open file
-			KeyCode::O if ctrl => self.open_file(),
-			// Save file as
-			KeyCode::S if ctrl && shift => self.save_file_as(),
-			// Save file
-			KeyCode::S if ctrl => self.save_file(),
-			// Other Actions
-			// -----------------------------
-			// Otherwise
-			_ => return false,
-		};
-
-		true
-	}
-
 	pub(super) fn execute_command(&mut self, key: KeyCode) {
 		let ctrl = is_key_down(KeyCode::LeftControl);
 		let shift = is_key_down(KeyCode::LeftShift);
+		let alt = is_key_down(KeyCode::LeftAlt);
 
 		match key {
 			// Ctrl Actions
@@ -117,6 +95,14 @@ impl super::Editor {
 
 				self.move_to_line(self.caret_row() + 1);
 			},
+			// Move caret to the end of line
+			KeyCode::Right if alt => {
+				self.caret_pos = self.lines[self.caret_row()].end;
+			},
+			// Move caret to the start of line
+			KeyCode::Left if alt => {
+				self.caret_pos = self.lines[self.caret_row()].start;
+			},
 			// Move caret to the right by one char
 			KeyCode::Right => {
 				if self.caret_pos < self.content.len() - 1 {
@@ -150,7 +136,7 @@ impl super::Editor {
 	}
 
 	fn move_one_word_right(&mut self, delete_word: bool) {
-		while self.caret_pos < self.content.len() - 1 && !Self::alphanumeric(self.content[self.caret_pos]) {
+		while self.caret_pos < self.content.len() - 1 && !alphanumeric(self.content[self.caret_pos]) {
 			self.caret_pos += 1;
 
 			if delete_word {
@@ -158,7 +144,7 @@ impl super::Editor {
 			}
 		}
 
-		while self.caret_pos < self.content.len() - 1 && Self::alphanumeric(self.content[self.caret_pos]) {
+		while self.caret_pos < self.content.len() - 1 && alphanumeric(self.content[self.caret_pos]) {
 			self.caret_pos += 1;
 
 			if delete_word {
@@ -168,7 +154,7 @@ impl super::Editor {
 	}
 
 	fn move_one_word_left(&mut self, delete_word: bool) {
-		while self.caret_pos > 0 && !Self::alphanumeric(self.content[self.caret_pos]) {
+		while self.caret_pos > 0 && !alphanumeric(self.content[self.caret_pos - 1]) {
 			self.caret_pos -= 1;
 
 			if delete_word {
@@ -176,7 +162,7 @@ impl super::Editor {
 			}
 		}
 
-		while self.caret_pos > 0 && Self::alphanumeric(self.content[self.caret_pos]) {
+		while self.caret_pos > 0 && alphanumeric(self.content[self.caret_pos - 1]) {
 			self.caret_pos -= 1;
 
 			if delete_word {
