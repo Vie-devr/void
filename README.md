@@ -6,12 +6,6 @@ Code editor, written with Rust + Macroquad just for fun and experience.
 Text editor component written from scratch specially for Void.
 
 ## Building
-For Debian/Ubuntu: 
-```
-sudo apt install libgtk-3-dev
-```
-
-And then, for any platform: 
 ```
 cargo run -r
 ```

@@ -22,14 +22,6 @@ impl super::Editor {
 			KeyCode::Right if ctrl => self.move_one_word_right(false),
 			// Move caret to the left by one word
 			KeyCode::Left if ctrl => self.move_one_word_left(false),
-			// New file
-			KeyCode::N if ctrl => self.new_file(),
-			// Open file
-			KeyCode::O if ctrl => self.open_file(),
-			// Save file as
-			KeyCode::S if ctrl && shift => self.save_file_as(),
-			// Save file
-			KeyCode::S if ctrl => self.save_file(),
 			// Other Actions
 			// -----------------------------
 			// Delete tabulation at the start of line
@@ -129,10 +121,11 @@ impl super::Editor {
 		};
 	}
 
-	fn move_to_line(&mut self, i: usize) {
-		let new_line = &self.lines[i];
-		
-		self.caret_pos = new_line.start + self.caret_col().clamp(0, new_line.end - new_line.start);
+	fn move_to_line(&mut self, index: usize) {
+		let new_line = &self.lines[index];
+		let col = self.caret_col().clamp(0, new_line.end - new_line.start);
+
+		self.caret_pos = new_line.start + col;
 	}
 
 	fn move_one_word_right(&mut self, delete_word: bool) {
@@ -154,6 +147,7 @@ impl super::Editor {
 
 		self.update_lines();
 	}
+
 	fn move_one_word_left(&mut self, delete_word: bool) {
 
 		while self.caret_pos > 0 && !alphanumeric(self.content[self.caret_pos - 1]) {

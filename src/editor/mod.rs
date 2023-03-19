@@ -102,7 +102,7 @@ impl Editor {
 			self.style.line_nums_background,
 		);
 
-		let text = self.content_as_text().replace("\t", &" ".repeat(self.style.tabs));
+		let text = self.content_as_text().replace("\t", &" ".repeat(self.style.tab_size));
 
 		// Draw editor content
 		for (i, line) in text.lines().enumerate() {
@@ -130,6 +130,7 @@ impl Editor {
 
 			if self.caret_row() == i {
 				let x = x + self.style.dimensions.width * self.caret_col() as f32;
+				let c = self.content[self.caret_pos];
 
 				// Draw caret
 				draw_rectangle(
@@ -140,15 +141,13 @@ impl Editor {
 					self.style.text,
 				);
 
-				let c = &self.content[self.caret_pos].to_string();
-
-				if c != "\n" {
+				if !c.is_whitespace() {
 					let mut params = self.style.text_params;
 					params.color = self.style.background;
 
 					// Draw char over the caret
 					draw_text_ex(
-						c,
+						&c.to_string(),
 						x,
 						y,
 						params,
@@ -173,15 +172,15 @@ impl Editor {
 	}
 
 	fn caret_col(&self) -> usize {
-		let line = &self.lines[self.caret_row()];
-		let col = self.caret_pos - line.start;
+		let new_line = &self.lines[self.caret_row()];
+		let col = self.caret_pos - new_line.start;
 		// Because we are rendering tab as n spaces, we need caret to move like there is n spaces
-		let tabs = self.content[line.start..self.caret_pos]
-						.iter()
-						.filter(|&c| c == &'\t')
-						.count();
+		let tabs = self.content[new_line.start..self.caret_pos]
+					.iter()
+					.filter(|c| **c == '\t')
+					.count();
 
-		col + tabs * (self.style.tabs - 1)
+		col + tabs * (self.style.tab_size - 1)
 	}
 
 	fn update_lines(&mut self) {

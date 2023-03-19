@@ -1,8 +1,7 @@
-use rfd::FileDialog;
 use std::fs;
 
 impl super::Editor {
-	pub(super) fn new_file(&mut self) {
+	/*pub(super) fn new_file(&mut self) {
 		self.content.clear();
 		self.opened_file = None;
 		self.caret_pos = 0;
@@ -15,7 +14,7 @@ impl super::Editor {
 			// Why sequence converting PathBuf to string is so long?
 			self.open_file_from_path(path.to_str().unwrap().to_string());
 		}
-	}
+	}*/
 
 	pub(super) fn open_file_from_path(&mut self, path: String) {
 		if let Ok(data) = fs::read_to_string(path.clone()) {
@@ -27,7 +26,7 @@ impl super::Editor {
 		}
 	}
 	
-	pub(super) fn save_file(&mut self) {
+	/*pub(super) fn save_file(&mut self) {
 		if let Some(path) = &self.opened_file {
 			fs::write(path, self.content_as_text()).unwrap();
 		}
@@ -56,5 +55,5 @@ impl super::Editor {
 		}
 
 		dialog
-	}
+	}*/
 }
