@@ -130,19 +130,19 @@ impl super::Editor {
 
 	fn move_one_word_right(&mut self, delete_word: bool) {
 		while self.caret_pos < self.content.len() - 1 && !alphanumeric(self.content[self.caret_pos]) {
-			self.caret_pos += 1;
-
 			if delete_word {
 				self.content.remove(self.caret_pos);
 			}
+
+			self.caret_pos += 1;
 		}
 
 		while self.caret_pos < self.content.len() - 1 && alphanumeric(self.content[self.caret_pos]) {
-			self.caret_pos += 1;
-
 			if delete_word {
 				self.content.remove(self.caret_pos);
 			}
+
+			self.caret_pos += 1;
 		}
 
 		self.update_lines();
