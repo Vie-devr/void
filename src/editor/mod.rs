@@ -5,6 +5,7 @@ mod command_executor;
 pub use style::*;
 
 use macroquad::prelude::*;
+use macroquad::miniquad::CursorIcon;
 
 const HOLDING_KEY_EXECUTION_START_DELAY: f32 = 0.4;
 const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.025;
@@ -48,6 +49,8 @@ impl Editor {
 	}
 
 	pub fn update(&mut self) {
+		self.update_cursor_icon();
+
 		// Pressed any key
 		if let Some(key) = get_last_key_pressed() {
 			// Reset key holding stuff
@@ -193,6 +196,20 @@ impl Editor {
 				self.lines.push(Line::new(start, i));
 				start = i + 1;
 			}
+		}
+	}
+
+	fn update_cursor_icon(&self) {
+		let mouse_pos = mouse_position();
+		let context = unsafe { get_internal_gl().quad_context };
+
+		// Cursor is over the editor
+		if mouse_pos.0 > 0.1 && mouse_pos.0 < screen_width()
+		&& mouse_pos.1 > 0.1 && mouse_pos.1 < screen_height() {
+			context.set_mouse_cursor(CursorIcon::Text);
+		}
+		else {
+			context.set_mouse_cursor(CursorIcon::Default);
 		}
 	}
 }
