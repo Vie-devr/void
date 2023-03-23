@@ -25,9 +25,10 @@ impl super::Editor {
 			self.style.line_nums_background,
 		);
 
+		// We are rendering \t as n spaces
 		let text = self.content_as_text().replace("\t", &" ".repeat(self.style.tab_size));
 
-		// Draw editor content
+		// Draw editor text
 		for (i, line) in text.lines().enumerate() {
 			let x = drawing_rect.x + self.style.text_padding + line_nums_bar_width;
 			let y = drawing_rect.y + self.style.text_padding
@@ -89,8 +90,8 @@ impl super::Editor {
 		let context = unsafe { get_internal_gl().quad_context };
 
 		// Cursor is over the editor
-		if mouse_pos.0 > 0.1 && mouse_pos.0 < screen_width()
-		&& mouse_pos.1 > 0.1 && mouse_pos.1 < screen_height() {
+		if mouse_pos.0 >= 0.1 && mouse_pos.0 <= screen_width() - 0.1
+		&& mouse_pos.1 >= 0.1 && mouse_pos.1 <= screen_height() - 0.1 {
 			context.set_mouse_cursor(CursorIcon::Text);
 		}
 		else {

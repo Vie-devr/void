@@ -10,6 +10,20 @@ use macroquad::prelude::*;
 const HOLDING_KEY_EXECUTION_START_DELAY: f32 = 0.4;
 const HOLDING_KEY_EXECUTION_DELAY: f32 = 0.025;
 
+struct Line {
+	start: usize,
+	end: usize,
+}
+
+impl Line {
+	fn new(start: usize, end: usize) -> Self {
+		Self {
+			start,
+			end,
+		}
+	}
+}
+
 pub struct Editor {
 	content: Vec<char>,
 	lines: Vec<Line>,
@@ -20,11 +34,6 @@ pub struct Editor {
 	holding_key: Option<KeyCode>,
 	holding_char: Option<char>,
 	holding_timer: f32,
-}
-
-struct Line {
-	start: usize,
-	end: usize,
 }
 
 impl Editor {
@@ -40,7 +49,6 @@ impl Editor {
 			holding_timer: 0.0,
 		};
 
-		// Open file if path given
 		if let Some(path) = opened_file {
 			result.open_file_from_path(path);
 		}
@@ -49,9 +57,7 @@ impl Editor {
 	}
 
 	pub fn update(&mut self) {
-		// Pressed any key
 		if let Some(key) = get_last_key_pressed() {
-			// Reset key holding stuff
 			self.holding_key = Some(key);
 			self.holding_timer = 0.0;
 
@@ -62,18 +68,14 @@ impl Editor {
 			self.execute_command(key);
 		}
 
-		// User hodling any key
 		if let Some(key) = self.holding_key {
-			// Pressed key was released
 			if is_key_released(key) {
 				self.holding_key = None;
 			}
 			else {
 				self.holding_timer += get_frame_time();
 				
-				// Checking if user holds key at least {HOLDING_KEY_EXECUTION_START_DELAY} seconds, and executing command with {HOLDING_KEY_EXECUTION_DELAY} delay
 				if self.holding_timer >= HOLDING_KEY_EXECUTION_START_DELAY + HOLDING_KEY_EXECUTION_DELAY {
-					// Reset timer
 					self.holding_timer = HOLDING_KEY_EXECUTION_START_DELAY;
 	
 					self.execute_command(key);
@@ -95,12 +97,12 @@ impl Editor {
 	fn caret_col(&self) -> usize {
 		let new_line = &self.lines[self.caret_row()];
 		let col = self.caret_pos - new_line.start;
-		// Because we are rendering tab as n spaces, we need caret to move like there is n spaces
 		let tabs = self.content[new_line.start..self.caret_pos]
 					.iter()
 					.filter(|c| **c == '\t')
 					.count();
 
+		// We need perceive \t as n spaces for correct caret working
 		col + tabs * (self.style.tab_size - 1)
 	}
 
@@ -114,15 +116,6 @@ impl Editor {
 				self.lines.push(Line::new(start, i));
 				start = i + 1;
 			}
-		}
-	}
-}
-
-impl Line {
-	fn new(start: usize, end: usize) -> Self {
-		Self {
-			start,
-			end,
 		}
 	}
 }
