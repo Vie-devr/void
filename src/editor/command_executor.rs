@@ -12,8 +12,6 @@ impl super::Editor {
 			// -----------------------------
 			// Delete word before caret
 			KeyCode::Backspace if ctrl => self.move_one_word_left(true),
-			// Delete word after caret
-			KeyCode::Delete if ctrl => self.move_one_word_right(true),
 			// Move to the start of document
 			KeyCode::Up if ctrl => self.caret_pos = 0,
 			// Move to the start of document
