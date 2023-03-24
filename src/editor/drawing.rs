@@ -36,20 +36,20 @@ impl super::Editor {
 				  + self.style.line_spacing * i as f32;
 
 			// Draw line number
-			draw_text_ex(
+			self.style.draw_text(
 				// I am too lazy to make here real padding. just spaces.
 				&format!(" {} ", i + 1),
 				drawing_rect.x,
 				y,
-				self.style.line_nums_params,
+				self.style.line_nums_text,
 			);
 
 			// Draw line
-			draw_text_ex(
+			self.style.draw_text(
 				line,
 				x,
 				y,
-				self.style.text_params,
+				self.style.text,
 			);
 
 			if self.caret_row() == i {
@@ -66,15 +66,13 @@ impl super::Editor {
 				);
 
 				if !c.is_whitespace() {
-					let mut params = self.style.text_params;
-					params.color = self.style.background;
 
 					// Draw char over the caret
-					draw_text_ex(
+					self.style.draw_text(
 						&c.to_string(),
 						x,
 						y,
-						params,
+						self.style.background,
 					);
 				}
 			}
@@ -90,8 +88,8 @@ impl super::Editor {
 		let context = unsafe { get_internal_gl().quad_context };
 
 		// Cursor is over the editor
-		if mouse_pos.0 >= 0.1 && mouse_pos.0 <= screen_width() - 0.1
-		&& mouse_pos.1 >= 0.1 && mouse_pos.1 <= screen_height() - 0.1 {
+		if mouse_pos.0 > 0.0 && mouse_pos.0 < screen_width()
+		&& mouse_pos.1 > 0.0 && mouse_pos.1 < screen_height() {
 			context.set_mouse_cursor(CursorIcon::Text);
 		}
 		else {
