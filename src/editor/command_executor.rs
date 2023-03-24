@@ -12,6 +12,8 @@ impl super::Editor {
 			// -----------------------------
 			// Delete word before caret
 			KeyCode::Backspace if ctrl => self.move_one_word_left(true),
+			// Delete word after caret
+			KeyCode::Delete if ctrl => self.move_one_word_right(true),
 			// Move to the start of document
 			KeyCode::Up if ctrl => self.caret_pos = 0,
 			// Move to the start of document
@@ -131,16 +133,18 @@ impl super::Editor {
 			if delete_word {
 				self.content.remove(self.caret_pos);
 			}
-
-			self.caret_pos += 1;
+			else {
+				self.caret_pos += 1;
+			}
 		}
 
 		while self.caret_pos < self.content.len() - 1 && alphanumeric(self.content[self.caret_pos]) {
 			if delete_word {
 				self.content.remove(self.caret_pos);
 			}
-
-			self.caret_pos += 1;
+			else {
+				self.caret_pos += 1;
+			}
 		}
 
 		self.update_lines();
