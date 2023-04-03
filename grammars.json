@@ -1,9 +1,0 @@
-{
-	"languages": [
-		{
-			"name": "Rust",
-			"extensions": [".rs"],
-			"grammar": "grammars/rust.json"
-		}
-	]
-}
