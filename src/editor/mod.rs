@@ -1,16 +1,21 @@
 mod gap_buffer;
+mod text_drawer;
 
-use macroquad::prelude::*;
+use macroquad::{
+	prelude::*,
+	miniquad::CursorIcon,
+};
 use copypasta::{ClipboardContext, ClipboardProvider};
 use gap_buffer::GapBuffer;
+use text_drawer::TextDrawer;
+use crate::config::Config;
 
-const TEXT_SIZE: f32 = 48.0;
-const TEXT_COLOR: Color = WHITE;
-const TAB_SIZE: usize = 4;
+const FONT: &[u8] = include_bytes!("../../res/jet_brains_mono.ttf");
 
 pub struct Editor {
 	buffer: GapBuffer,
 	caret_pos: usize,
+	drawer: TextDrawer,
 }
 
 impl Editor {
@@ -18,6 +23,9 @@ impl Editor {
 		Self {
 			buffer: GapBuffer::new(),
 			caret_pos: 0,
+			drawer: TextDrawer::new(
+				load_ttf_font_from_bytes(FONT).unwrap(),
+			),
 		}
 	}
 
@@ -85,18 +93,24 @@ impl Editor {
 		}
 	}
 
-	pub fn draw(&self) {
-		let text = self.buffer.to_string().replace('\t', &" ".repeat(TAB_SIZE));
+	pub fn draw(&self, config: &Config) {
+		clear_background(config.theme.background);
 
-		for (i, line) in text.lines().enumerate() {
-			draw_text(
+		let text = self.buffer.to_string()
+						.replace('\t', &" ".repeat(config.tab_size));
+		let lines = text.lines();
+
+		for (i, line) in lines.enumerate() {
+			self.drawer.draw_text(
 				line,
 				0.0,
-				TEXT_SIZE * (i + 1) as f32,
-				TEXT_SIZE,
-				TEXT_COLOR,
+				(config.text_size as usize * i) as f32,
+				config.text_size,
+				config.theme.foreground,
 			);
 		}
+
+		self.update_mouse_cursor();
 	}
 
 	fn ensure_ending_newline(&mut self) {
@@ -107,5 +121,19 @@ impl Editor {
 		}
 
 		self.buffer.insert_char('\n', self.buffer.len());
+	}
+
+	fn update_mouse_cursor(&self) {
+		let context = unsafe { get_internal_gl().quad_context };
+		let mouse_pos = mouse_position();
+
+		// Set mouse cursor to "Text", when it is over the editor
+		if mouse_pos.0 >= 0.0 && mouse_pos.0 <= screen_width()
+		&& mouse_pos.1 >= 0.0 && mouse_pos.1 <= screen_height() {
+			context.set_mouse_cursor(CursorIcon::Text);
+		}
+		else {
+			context.set_mouse_cursor(CursorIcon::Default);
+		}
 	}
 }

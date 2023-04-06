@@ -1,5 +1,8 @@
 mod editor;
 mod app;
+mod config;
+mod theme;
+mod utils;
 
 use macroquad::prelude::*;
 use app::App;

@@ -1,11 +1,16 @@
 use macroquad::prelude::*;
-use crate::editor::Editor;
+use crate::{
+	editor::Editor,
+	config::Config,
+	utils::config_file,
+};
 
 const HOLDING_KEY_START_DELAY: f32 = 0.4;
 const HOLDING_KEY_DELAY: f32 = 0.03;
 
 pub struct App {
 	editor: Editor,
+	config: Config,
 	key_holding_timer: f32,
 	holding_key: Option<KeyCode>,
 	holding_char: Option<char>,
@@ -13,8 +18,15 @@ pub struct App {
 
 impl App {
 	pub fn new() -> Self {
+		let config = Config::from_file(&config_file());
+
+		if config.is_err() {
+			println!("{}", config.as_ref().unwrap_err());
+		}
+
 		Self {
 			editor: Editor::new(),
+			config: config.unwrap_or_default(),
 			key_holding_timer: 0.0,
 			holding_key: None,
 			holding_char: None,
@@ -51,8 +63,7 @@ impl App {
 	}
 
 	pub fn draw(&self) {
-		clear_background(BLACK);
-		self.editor.draw();
+		self.editor.draw(&self.config);
 	}
 
 	fn process_input(&mut self) {
