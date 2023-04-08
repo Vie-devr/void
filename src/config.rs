@@ -28,7 +28,7 @@ impl Config {
 		let settings = ExternalConfig::builder()
 						.add_source(File::with_name(path))
 						.build()
-						.map_err(|_| "Config file not found")?;
+						.map_err(|_| format!("Config file not found: {}", path))?;
 
 		let theme_name = settings.get_string("theme")
 							.map_err(|_| "Theme is not specified")?;
