@@ -3,20 +3,26 @@ use toml::Value;
 
 #[derive(Debug)]
 pub struct Theme {
-	pub background: Color,
-	pub foreground: Color,
+	pub bg0: Color,
+	pub bg1: Color,
+	pub fg0: Color,
+	pub fg1: Color,
 	pub colors: Vec<Color>,
 }
 
 impl Theme {
 	pub fn from_toml(toml: Value) -> Result<Self, String> {
-		let bg = toml["background"].as_array().ok_or("Invalid background color")?;
-		let fg = toml["foreground"].as_array().ok_or("Invalid foreground color")?;
+		let bg0 = toml["bg0"].as_array().ok_or("Invalid background color")?;
+		let bg1 = toml["bg1"].as_array().ok_or("Invalid background color")?;
+		let fg0 = toml["fg0"].as_array().ok_or("Invalid foreground color")?;
+		let fg1 = toml["fg1"].as_array().ok_or("Invalid foreground color")?;
 		let colors = toml["colors"].as_array().ok_or("Invalid colors array")?;
 
 		Ok(Self {
-			background: toml_vec_to_color(bg),
-			foreground: toml_vec_to_color(fg),
+			bg0: toml_vec_to_color(bg0),
+			bg1: toml_vec_to_color(bg1),
+			fg0: toml_vec_to_color(fg0),
+			fg1: toml_vec_to_color(fg1),
 			colors: colors
 				.iter()
 				.map(|color| toml_vec_to_color(color.as_array().unwrap_or(&Vec::new())))
@@ -28,19 +34,24 @@ impl Theme {
 impl Default for Theme {
 	fn default() -> Self {
 		Self {
-			background: BLACK,
-			foreground: WHITE,
+			bg0: BLACK,
+			bg1: BLACK,
+			fg0: WHITE,
+			fg1: WHITE,
 			colors: Vec::new(),
 		}
 	}
 }
 
-#[inline]
-fn toml_vec_to_color(vec: &Vec<Value>) -> Color {
+fn toml_vec_to_color(vec: &[Value]) -> Color {
+	let to_int = |x: Option<&Value>| x
+		.and_then(Value::as_integer)
+		.unwrap_or(255) as u8;
+
 	Color::from_rgba(
-		vec.get(0).and_then(Value::as_integer).unwrap_or(255) as u8,
-		vec.get(1).and_then(Value::as_integer).unwrap_or(255) as u8,
-		vec.get(2).and_then(Value::as_integer).unwrap_or(255) as u8,
-		vec.get(3).and_then(Value::as_integer).unwrap_or(255) as u8,
+		to_int(vec.get(0)),
+		to_int(vec.get(1)),
+		to_int(vec.get(2)),
+		to_int(vec.get(3)),
 	)
 }

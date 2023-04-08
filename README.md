@@ -2,8 +2,7 @@
 
 ### ** EDITOR IS UNFINISHED **
 
-Code editor, written with Rust + Macroquad just for fun and experience.
-Text editor component written from scratch specially for Void.
+Code editor, written from scratch with Rust + Macroquad just for fun and experience.
 
 ## Building
 ```

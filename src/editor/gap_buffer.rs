@@ -16,11 +16,8 @@ impl GapBuffer {
 		}
 	}
 
-	pub(super) fn to_string(&self) -> String {
-		let mut str = String::new();
-		str.extend(self.to_vec().iter());
-
-		str
+	pub(super) fn len(&self) -> usize {
+		self.buffer.len() - (self.gap_end - self.gap_start)
 	}
 
 	pub(super) fn to_vec(&self) -> Vec<char> {
@@ -31,10 +28,6 @@ impl GapBuffer {
 		}
 
 		vec
-	}
-
-	pub(super) fn len(&self) -> usize {
-		self.buffer.len() - (self.gap_end - self.gap_start)
 	}
 
 	pub(super) fn insert(&mut self, str: String, index: usize) {
@@ -61,22 +54,31 @@ impl GapBuffer {
 	}
 
 	fn move_gap(&mut self, index: usize) {
-		if index > self.gap_start {
-			let amount = index - self.gap_start;
+		match index {
+			i if i > self.gap_start => {
+				let amount = i - self.gap_start;
 
-			self.buffer.copy_within(self.gap_end..(self.gap_end + amount), self.gap_start);
+				self.buffer.copy_within(
+					self.gap_end..(self.gap_end + amount),
+					self.gap_start,
+				);
 
-			self.gap_start += amount;
-			self.gap_end += amount;
+				self.gap_start += amount;
+				self.gap_end += amount;
+			},
+			i if i < self.gap_start => {
+				let amount = self.gap_start - i;
+
+				self.buffer.copy_within(
+					i..self.gap_start,
+					self.gap_end - amount,
+				);
+
+				self.gap_start -= amount;
+				self.gap_end -= amount;
+			},
+			_ => {},
 		}
-		else if index < self.gap_start {
-			let amount = self.gap_start - index;
-
-			self.buffer.copy_within(index..self.gap_start, self.gap_end - amount);
-
-			self.gap_start -= amount;
-			self.gap_end -= amount;
-	    }
 	}
 
 	fn grow_gap(&mut self, amount: usize) {
@@ -86,6 +88,15 @@ impl GapBuffer {
 		self.buffer.resize(old_len + amount, GAP_FILLER);
 		self.buffer.copy_within(self.gap_end..old_len, new_gap_end);
 		self.gap_end = new_gap_end;
+	}
+}
+
+impl ToString for GapBuffer {
+	fn to_string(&self) -> String {
+		let mut str = String::new();
+		str.extend(self.to_vec().iter());
+
+		str
 	}
 }
 

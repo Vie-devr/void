@@ -6,9 +6,7 @@ pub struct TextDrawer {
 
 impl TextDrawer {
 	pub fn new(font: Font) -> Self {
-		Self {
-			font,
-		}
+		Self { font }
 	}
 
 	pub fn draw_text(&self, text: &str, x: f32, y: f32, text_size: u16, color: Color) {
@@ -19,9 +17,19 @@ impl TextDrawer {
 			TextParams {
 				font: self.font,
 				font_size: text_size,
+				font_scale: 1.0,
 				color,
 				..Default::default()
 			},
 		);
+	}
+
+	pub fn measure_text(&self, text: &str, text_size: u16) -> TextDimensions {
+		measure_text(
+			text,
+			Some(self.font),
+			text_size,
+			1.0,
+		)
 	}
 }

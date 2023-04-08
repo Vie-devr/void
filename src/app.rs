@@ -1,16 +1,18 @@
+use crate::{config::Config, editor::Editor, utils::*};
 use macroquad::prelude::*;
-use crate::{
-	editor::Editor,
-	config::Config,
-	utils::config_file,
-};
 
 const HOLDING_KEY_START_DELAY: f32 = 0.4;
 const HOLDING_KEY_DELAY: f32 = 0.03;
 
+enum State {
+	Editor,
+	Browser,
+}
+
 pub struct App {
-	editor: Editor,
+	state: State,
 	config: Config,
+	editor: Editor,
 	key_holding_timer: f32,
 	holding_key: Option<KeyCode>,
 	holding_char: Option<char>,
@@ -25,8 +27,9 @@ impl App {
 		}
 
 		Self {
-			editor: Editor::new(),
+			state: State::Editor,
 			config: config.unwrap_or_default(),
+			editor: Editor::new(),
 			key_holding_timer: 0.0,
 			holding_key: None,
 			holding_char: None,
@@ -47,7 +50,7 @@ impl App {
 		if let Some(key) = self.holding_key {
 			// Still holding key
 			if is_key_down(key) {
-		    	// Update timer
+				// Update timer
 				self.key_holding_timer += get_frame_time();
 
 				// Wait start delay and delay

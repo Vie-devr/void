@@ -1,14 +1,11 @@
 mod gap_buffer;
 mod text_drawer;
 
-use copypasta::{ClipboardContext, ClipboardProvider};
-use gap_buffer::GapBuffer;
-use text_drawer::TextDrawer;
-use macroquad::{
-	prelude::*,
-	miniquad::CursorIcon,
-};
 use crate::config::Config;
+use clipboard::{ClipboardContext, ClipboardProvider};
+use gap_buffer::GapBuffer;
+use macroquad::{miniquad::CursorIcon, prelude::*};
+use text_drawer::TextDrawer;
 
 const FONT: &[u8] = include_bytes!("../../res/jet_brains_mono.ttf");
 
@@ -23,9 +20,7 @@ impl Editor {
 		Self {
 			buffer: GapBuffer::new(),
 			caret_pos: 0,
-			drawer: TextDrawer::new(
-				load_ttf_font_from_bytes(FONT).unwrap(),
-			),
+			drawer: TextDrawer::new(load_ttf_font_from_bytes(FONT).unwrap()),
 		}
 	}
 
@@ -35,7 +30,7 @@ impl Editor {
 		self.ensure_ending_newline();
 
 		match key {
-			// Paste text from clipboard (the most editor's weight is copypasta crate, lol)
+			// Paste text from clipboard
 			KeyCode::V if ctrl_pressed => {
 				let mut ctx = ClipboardContext::new().unwrap();
 
@@ -94,21 +89,31 @@ impl Editor {
 	}
 
 	pub fn draw(&self, config: &Config) {
-		clear_background(config.theme.background);
+		clear_background(config.theme.bg0);
 
 		let text = self.buffer.to_string()
 						.replace('\t', &" ".repeat(config.tab_size()));
 		let lines = text.lines();
+		let line_nums_width = self.drawer.measure_text(
+			&format!(" {} ", lines.clone().count()),
+			config.text_size() as u16,
+		).width;
 
-		for (i, line) in lines.enumerate() {
+		draw_rectangle(0.0, 0.0, line_nums_width, screen_height(), config.theme.bg1);
+
+		for (i, line) in lines.clone().enumerate() {
+			self.draw_line_num(config, i);
+
 			self.drawer.draw_text(
 				line,
-				0.0,
+				line_nums_width,
 				(config.text_size() * i) as f32,
 				config.text_size() as u16,
-				config.theme.foreground,
+				config.theme.fg0,
 			);
 		}
+
+		self.draw_line_num(config, lines.clone().count());
 
 		self.update_mouse_cursor();
 	}
@@ -135,5 +140,17 @@ impl Editor {
 		else {
 			context.set_mouse_cursor(CursorIcon::Default);
 		}
+	}
+
+	fn draw_line_num(&self, config: &Config, line: usize) {
+		let y = (config.text_size() * line) as f32;
+
+		self.drawer.draw_text(
+			&format!(" {} ", line + 1),
+			0.0,
+			y,
+			config.text_size() as u16,
+			config.theme.fg1,
+		);
 	}
 }

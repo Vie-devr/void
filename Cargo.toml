@@ -12,6 +12,7 @@ strip = true        # Strip symbols from binary*
 
 [dependencies]
 macroquad = { version = "0.3.25", default-features = false }
-copypasta = "0.8.2"
-toml = "0.7.3"
+clipboard = "0.5.0"
 config = { version = "0.13.3", default-features = false, features = ["toml"] }
+toml = "0.7.3"
+colors-transform = "0.2.11"
