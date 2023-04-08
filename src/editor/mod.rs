@@ -1,13 +1,13 @@
 mod gap_buffer;
 mod text_drawer;
 
+use copypasta::{ClipboardContext, ClipboardProvider};
+use gap_buffer::GapBuffer;
+use text_drawer::TextDrawer;
 use macroquad::{
 	prelude::*,
 	miniquad::CursorIcon,
 };
-use copypasta::{ClipboardContext, ClipboardProvider};
-use gap_buffer::GapBuffer;
-use text_drawer::TextDrawer;
 use crate::config::Config;
 
 const FONT: &[u8] = include_bytes!("../../res/jet_brains_mono.ttf");
@@ -97,15 +97,15 @@ impl Editor {
 		clear_background(config.theme.background);
 
 		let text = self.buffer.to_string()
-						.replace('\t', &" ".repeat(config.tab_size));
+						.replace('\t', &" ".repeat(config.tab_size()));
 		let lines = text.lines();
 
 		for (i, line) in lines.enumerate() {
 			self.drawer.draw_text(
 				line,
 				0.0,
-				(config.text_size as usize * i) as f32,
-				config.text_size,
+				(config.text_size() * i) as f32,
+				config.text_size() as u16,
 				config.theme.foreground,
 			);
 		}

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [profile.release]
-opt-level = 'z'     # Optimize for size
+#opt-level = 'z'     # Optimize for size
 lto = true          # Enable link-time optimization
 codegen-units = 1   # Reduce number of codegen units to increase optimizations
 panic = 'abort'     # Abort on panic
@@ -14,3 +14,4 @@ strip = true        # Strip symbols from binary*
 macroquad = { version = "0.3.25", default-features = false }
 copypasta = "0.8.2"
 toml = "0.7.3"
+config = { version = "0.13.3", default-features = false, features = ["toml"] }

@@ -1,51 +1,54 @@
+use toml::Value;
+use std::fs;
+use config::{
+	Config as ExternalConfig,
+	File,
+};
 use crate::{
 	theme::Theme,
 	utils::theme_file,
 };
-use toml::Value;
-use std::fs;
+
+macro_rules! getter {
+	($name:ident, $t:ty, $default:expr) => {
+		pub fn $name(&self) -> $t {
+			self.settings.get::<$t>(stringify!($name)).unwrap_or($default)
+		}
+	};
+}
 
 #[derive(Debug)]
 pub struct Config {
-	pub tab_size: usize,
-	pub text_size: u16,
+	pub settings: ExternalConfig,
 	pub theme: Theme,
 }
 
 impl Config {
 	pub fn from_file(path: &str) -> Result<Self, String> {
-		let parsed = toml_from_file(path)?;
+		let settings = ExternalConfig::builder()
+						.add_source(File::with_name(path))
+						.build()
+						.map_err(|_| "Config file not found")?;
 
-		let tab_size = match parsed.get("tab_size") {
-			Some(value) => value.as_integer().unwrap_or(4) as usize,
-			None => 4,
-		};
-		let text_size = parsed.get("text_size").ok_or("")?
-							.as_integer().unwrap_or(28) as u16;
-
-		let theme = match parsed.get("theme") {
-			Some(theme) => {
-				let path = theme_file(theme.as_str().unwrap_or(""));
-
-				Theme::from_toml(toml_from_file(&path)?)
-							.unwrap_or_default()
-			},
-			None => Theme::default(),
-		};
+		let theme_name = settings.get_string("theme")
+							.map_err(|_| "Theme is not specified")?;
+		let theme_path = theme_file(&theme_name);
+		let theme = Theme::from_toml(toml_from_file(&theme_path)?)?;
 
 		Ok(Self {
-			tab_size,
-			text_size,
+			settings,
 			theme,
 		})
 	}
+
+	getter!(tab_size, usize, 4);
+	getter!(text_size, usize, 18);
 }
 
 impl Default for Config {
 	fn default() -> Self {
 		Self {
-			tab_size: 4,
-			text_size: 28,
+			settings: ExternalConfig::default(),
 			theme: Theme::default(),
 		}
 	}
@@ -53,9 +56,9 @@ impl Default for Config {
 
 fn toml_from_file(path: &str) -> Result<Value, String> {
 	let content = fs::read_to_string(path)
-							.map_err(|_| format!("File not found: {}", path))?;
+					.map_err(|_| format!("File not found: {}", path))?;
 	let parsed: Value = toml::from_str(&content)
-							.map_err(|_| format!("Error parsing file: {}", path))?;
+					.map_err(|_| format!("Error parsing file: {}", path))?;
 
 	Ok(parsed)
 }
