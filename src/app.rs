@@ -43,7 +43,7 @@ impl App {
 			self.holding_key = Some(key);
 			self.holding_char = get_char_pressed();
 
-			self.process_input(key);
+			self.process_input(key, self.holding_char);
 		}
 
 		// Holding key
@@ -56,7 +56,7 @@ impl App {
 				// Wait start delay and delay
 				if self.key_holding_timer >= HOLDING_KEY_START_DELAY + HOLDING_KEY_DELAY {
 					self.key_holding_timer = HOLDING_KEY_START_DELAY;
-					self.process_input(key);
+					self.process_input(key, self.holding_char);
 				}
 			}
 			else {
@@ -69,9 +69,9 @@ impl App {
 		self.editor.draw(&self.config);
 	}
 
-	fn process_input(&mut self, key: KeyCode) {
+	fn process_input(&mut self, key: KeyCode, chr: Option<char>) {
 		match key {
-			_ => self.editor.process_input(key, self.holding_char),
+			_ => self.editor.process_input(key, chr),
 		}
 	}
 }
