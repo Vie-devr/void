@@ -5,7 +5,7 @@ pub struct TextDrawer {
 }
 
 impl TextDrawer {
-	pub const fn new(font: Font) -> Self {
+	pub fn new(font: Font) -> Self {
 		Self { font }
 	}
 

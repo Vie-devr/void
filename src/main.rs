@@ -1,5 +1,3 @@
-#![warn(clippy::nursery)]
-
 mod app;
 mod config;
 mod editor;
