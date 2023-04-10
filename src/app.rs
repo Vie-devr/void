@@ -1,4 +1,4 @@
-use crate::{config::Config, editor::Editor, utils::*};
+use crate::{config::Config, editor::Editor, utils::config_file};
 use macroquad::prelude::*;
 
 const HOLDING_KEY_START_DELAY: f32 = 0.4;
@@ -22,8 +22,8 @@ impl App {
 	pub fn new() -> Self {
 		let config = Config::from_file(&config_file());
 
-		if config.is_err() {
-			println!("{}", config.as_ref().unwrap_err());
+		if let Err(err) = &config {
+			println!("{err}");
 		}
 
 		Self {
@@ -43,7 +43,7 @@ impl App {
 			self.holding_key = Some(key);
 			self.holding_char = get_char_pressed();
 
-			self.process_input();
+			self.process_input(key);
 		}
 
 		// Holding key
@@ -56,7 +56,7 @@ impl App {
 				// Wait start delay and delay
 				if self.key_holding_timer >= HOLDING_KEY_START_DELAY + HOLDING_KEY_DELAY {
 					self.key_holding_timer = HOLDING_KEY_START_DELAY;
-					self.process_input();
+					self.process_input(key);
 				}
 			}
 			else {
@@ -69,9 +69,7 @@ impl App {
 		self.editor.draw(&self.config);
 	}
 
-	fn process_input(&mut self) {
-		let key = self.holding_key.unwrap();
-
+	fn process_input(&mut self, key: KeyCode) {
 		match key {
 			_ => self.editor.process_input(key, self.holding_char),
 		}

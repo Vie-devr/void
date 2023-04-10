@@ -5,7 +5,7 @@ pub struct TextDrawer {
 }
 
 impl TextDrawer {
-	pub fn new(font: Font) -> Self {
+	pub const fn new(font: Font) -> Self {
 		Self { font }
 	}
 
@@ -25,11 +25,6 @@ impl TextDrawer {
 	}
 
 	pub fn measure_text(&self, text: &str, text_size: u16) -> TextDimensions {
-		measure_text(
-			text,
-			Some(self.font),
-			text_size,
-			1.0,
-		)
+		measure_text(text, Some(self.font), text_size, 1.0)
 	}
 }

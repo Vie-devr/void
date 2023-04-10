@@ -1,4 +1,4 @@
-use crate::{theme::Theme, utils::*};
+use crate::{theme::Theme, utils::{theme_file, toml_from_file}};
 use config::{Config as ExternalConfig, File};
 
 macro_rules! getter {
@@ -20,7 +20,7 @@ impl Config {
 		let settings = ExternalConfig::builder()
 			.add_source(File::with_name(path))
 			.build()
-			.map_err(|_| format!("Config file not found: {}", path))?;
+			.map_err(|_| format!("Config file not found: {path}"))?;
 
 		let theme_name = 
 			settings.get_string("theme")

@@ -1,4 +1,4 @@
-use macroquad::color::*;
+use macroquad::color::{Color, BLACK, WHITE};
 use toml::Value;
 
 #[derive(Debug)]
@@ -44,9 +44,7 @@ impl Default for Theme {
 }
 
 fn toml_vec_to_color(vec: &[Value]) -> Color {
-	let to_int = |x: Option<&Value>| x
-		.and_then(Value::as_integer)
-		.unwrap_or(255) as u8;
+	let to_int = |x: Option<&Value>| x.and_then(Value::as_integer).unwrap_or(255) as u8;
 
 	Color::from_rgba(
 		to_int(vec.get(0)),

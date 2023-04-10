@@ -30,7 +30,7 @@ impl GapBuffer {
 		vec
 	}
 
-	pub(super) fn insert(&mut self, str: String, index: usize) {
+	pub(super) fn insert(&mut self, str: &str, index: usize) {
 		self.move_gap(index);
 
 		for chr in str.chars() {
@@ -44,7 +44,7 @@ impl GapBuffer {
 	}
 
 	pub(super) fn insert_char(&mut self, chr: char, index: usize) {
-		self.insert(chr.to_string(), index);
+		self.insert(&chr.to_string(), index);
 	}
 
 	pub(super) fn delete_char(&mut self, index: usize) {
@@ -65,7 +65,7 @@ impl GapBuffer {
 
 				self.gap_start += amount;
 				self.gap_end += amount;
-			},
+			}
 			i if i < self.gap_start => {
 				let amount = self.gap_start - i;
 
@@ -76,8 +76,8 @@ impl GapBuffer {
 
 				self.gap_start -= amount;
 				self.gap_end -= amount;
-			},
-			_ => {},
+			}
+			_ => {}
 		}
 	}
 
@@ -106,9 +106,9 @@ mod tests {
 	fn test_insert() {
 		let mut buffer = super::GapBuffer::new();
 
-		buffer.insert(String::from("cara"), 0);
+		buffer.insert("cara", 0);
 		assert_eq!(String::from("cara"), buffer.to_string());
-		buffer.insert(String::from("pyba"), 2);
+		buffer.insert("pyba", 2);
 		assert_eq!(String::from("capybara"), buffer.to_string());
 	}
 
@@ -128,7 +128,7 @@ mod tests {
 	fn test_delete_char() {
 		let mut buffer = super::GapBuffer::new();
 
-		buffer.insert(String::from("pepperoni"), 0);
+		buffer.insert("pepperoni", 0);
 		buffer.delete_char(2);
 		assert_eq!(String::from("peperoni"), buffer.to_string());
 	}
@@ -137,8 +137,8 @@ mod tests {
 	fn test_buffer_overflow() {
 		let mut buffer = super::GapBuffer::new();
 
-		buffer.insert(String::from("pepperoni"), 0);
-		buffer.insert(String::from(" pepperidze"), 9);
+		buffer.insert("pepperoni", 0);
+		buffer.insert(" pepperidze", 9);
 		assert_eq!(String::from("pepperoni pepperidze"), buffer.to_string());
 	}
 
@@ -146,7 +146,7 @@ mod tests {
 	fn test_len() {
 		let mut buffer = super::GapBuffer::new();
 
-		buffer.insert(String::from("Capybara"), 0);
+		buffer.insert("Capybara", 0);
 		assert_eq!(8, buffer.len());
 	}
 }
