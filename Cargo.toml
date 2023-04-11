@@ -4,15 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [profile.release]
-#opt-level = 'z'     # Optimize for size
-lto = true          # Enable link-time optimization
-codegen-units = 1   # Reduce number of codegen units to increase optimizations
-panic = 'abort'     # Abort on panic
-strip = true        # Strip symbols from binary*
+# Enable link-time optimization
+lto = true
+# Reduce number of codegen units to increase optimizations
+codegen-units = 1
+# Strip symbols from binary
+strip = true
 
 [dependencies]
 macroquad = { version = "0.3.25", default-features = false }
 clipboard = "0.5.0"
-config = { version = "0.13.3", default-features = false, features = ["toml"] }
-toml = "0.7.3"
-colors-transform = "0.2.11"
+toml = "0.5.11"

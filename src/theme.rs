@@ -12,26 +12,26 @@ pub struct Theme {
 
 impl Theme {
 	pub fn from_toml(toml: Value) -> Result<Self, String> {
-		let toml_to_vec =
-			|name: &str| toml[name]
-				.as_array()
-				.ok_or(format!("Parsing error: Invalid {name}"));
+		let toml_to_color =
+			|name: &str| hex_to_color(toml[name].as_str().unwrap_or("#fff"));
 
-		let bg0 = toml_to_vec("bg0")?;
-		let bg1 = toml_to_vec("bg1")?;
-		let fg0 = toml_to_vec("fg0")?;
-		let fg1 = toml_to_vec("fg1")?;
-		let colors = toml_to_vec("colors")?;
+		let bg0 = toml_to_color("bg0");
+		let bg1 = toml_to_color("bg1");
+		let fg0 = toml_to_color("fg0");
+		let fg1 = toml_to_color("fg1");
+		let colors = toml["colors"]
+			.as_array()
+			.unwrap_or(&Vec::new())
+			.iter()
+			.map(|color| hex_to_color(color.as_str().unwrap_or("#fff")))
+			.collect();
 
 		Ok(Self {
-			bg0: toml_vec_to_color(bg0),
-			bg1: toml_vec_to_color(bg1),
-			fg0: toml_vec_to_color(fg0),
-			fg1: toml_vec_to_color(fg1),
-			colors: colors
-				.iter()
-				.map(|color| toml_vec_to_color(color.as_array().unwrap_or(&Vec::new())))
-				.collect(),
+			bg0,
+			bg1,
+			fg0,
+			fg1,
+			colors,
 		})
 	}
 }
@@ -48,13 +48,23 @@ impl Default for Theme {
 	}
 }
 
-fn toml_vec_to_color(vec: &[Value]) -> Color {
-	let to_int = |x: Option<&Value>| x.and_then(Value::as_integer).unwrap_or(255) as u8;
+fn hex_to_color(hex: &str) -> Color {
+	let hex = hex.trim_start_matches('#');
+	match hex.len() {
+		3 => {
+			let r = u8::from_str_radix(&hex[0..1].repeat(2), 16).unwrap_or(255);
+			let g = u8::from_str_radix(&hex[1..2].repeat(2), 16).unwrap_or(255);
+			let b = u8::from_str_radix(&hex[2..3].repeat(2), 16).unwrap_or(255);
 
-	Color::from_rgba(
-		to_int(vec.get(0)),
-		to_int(vec.get(1)),
-		to_int(vec.get(2)),
-		to_int(vec.get(3)),
-	)
+			Color::from_rgba(r, g, b, 255)
+		}
+		6 => {
+			let r = u8::from_str_radix(&hex[0..2], 16).unwrap_or(255);
+			let g = u8::from_str_radix(&hex[2..4], 16).unwrap_or(255);
+			let b = u8::from_str_radix(&hex[4..6], 16).unwrap_or(255);
+
+			Color::from_rgba(r, g, b, 255)
+		}
+		_ => WHITE,
+	}
 }
