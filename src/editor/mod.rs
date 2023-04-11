@@ -97,7 +97,7 @@ impl Editor {
 			.replace('\t', &" ".repeat(config.tab_size()));
 		let lines = text.lines();
 		let line_nums_width = self.drawer.measure_text(
-			&format!(" {} ", lines.clone().count()),
+			&format!(" {} ", lines.clone().count() + 1),
 			config.text_size() as u16,
 		).width;
 

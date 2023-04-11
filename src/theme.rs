@@ -12,11 +12,16 @@ pub struct Theme {
 
 impl Theme {
 	pub fn from_toml(toml: Value) -> Result<Self, String> {
-		let bg0 = toml["bg0"].as_array().ok_or("Invalid background color")?;
-		let bg1 = toml["bg1"].as_array().ok_or("Invalid background color")?;
-		let fg0 = toml["fg0"].as_array().ok_or("Invalid foreground color")?;
-		let fg1 = toml["fg1"].as_array().ok_or("Invalid foreground color")?;
-		let colors = toml["colors"].as_array().ok_or("Invalid colors array")?;
+		let toml_to_vec =
+			|name: &str| toml[name]
+				.as_array()
+				.ok_or(format!("Parsing error: Invalid {name}"));
+
+		let bg0 = toml_to_vec("bg0")?;
+		let bg1 = toml_to_vec("bg1")?;
+		let fg0 = toml_to_vec("fg0")?;
+		let fg1 = toml_to_vec("fg1")?;
+		let colors = toml_to_vec("colors")?;
 
 		Ok(Self {
 			bg0: toml_vec_to_color(bg0),

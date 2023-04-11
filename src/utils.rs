@@ -23,8 +23,10 @@ pub fn root_dir() -> String {
 }
 
 pub fn toml_from_file(path: &str) -> Result<Value, String> {
-	let content = read_to_string(path).map_err(|_| format!("File not found: {}", path))?;
-	let parsed: Value = from_str(&content).map_err(|_| format!("Error parsing file: {}", path))?;
+	let content = read_to_string(path)
+		.map_err(|_| format!("File error: file {path} not found"))?;
+	let parsed: Value = from_str(&content)
+		.map_err(|err| format!("Parsing error: {err}"))?;
 
 	Ok(parsed)
 }

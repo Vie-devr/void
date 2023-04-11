@@ -20,13 +20,13 @@ impl Config {
 		let settings = ExternalConfig::builder()
 			.add_source(File::with_name(path))
 			.build()
-			.map_err(|_| format!("Config file not found: {path}"))?;
+			.map_err(|err| format!("Config error: {err}"))?;
 
-		let theme_name = 
-			settings.get_string("theme")
-			.map_err(|_| "Theme is not specified")?;
-		let theme_path = theme_file(&theme_name);
-		let theme = Theme::from_toml(toml_from_file(&theme_path)?)?;
+		let mut theme = Theme::default();
+		if let Ok(theme_name) = settings.get_string("theme") {
+			let theme_path = theme_file(&theme_name);
+			theme = Theme::from_toml(toml_from_file(&theme_path)?)?;
+		}
 
 		Ok(Self { settings, theme })
 	}
