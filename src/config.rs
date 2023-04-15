@@ -1,13 +1,25 @@
 use crate::utils::{parse_colorscheme, toml_from_file};
+use include_dir::{Dir, include_dir};
 use macroquad::color::{Color, WHITE};
 use std::collections::HashMap;
 use toml::{Value, macros::Deserialize};
 
+const COLORSCHEMES_DIR: Dir = 
+	include_dir!("$CARGO_MANIFEST_DIR/res/colorschemes/");
+
 lazy_static::lazy_static! {
+	/// Here we are generating HashMap with colorscheme
+	/// name as key, and scheme file's content as value
 	static ref COLORSCHEMES: HashMap<&'static str, &'static str> =
-		HashMap::from([
-			("default", include_str!("../res/themes/default.void")),
-		]);
+		COLORSCHEMES_DIR
+			.files()
+			.map(|file| {
+				let name = file.path().file_stem().unwrap().to_str().unwrap();
+				let contents = file.contents_utf8().unwrap();
+
+				(name, contents)
+			})
+			.collect();
 }
 
 /// Generates getter method for $name config property of type $t
