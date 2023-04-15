@@ -7,7 +7,10 @@ use gap_buffer::GapBuffer;
 use macroquad::{miniquad::CursorIcon, prelude::*};
 use text_drawer::TextDrawer;
 
-const FONT: &[u8] = include_bytes!("../../res/jet_brains_mono.ttf");
+const FONT_REGULAR: &[u8] =
+	include_bytes!("../../res/fonts/jet_brains_mono_semi_bold.ttf");
+const FONT_BOLD: &[u8] =
+	include_bytes!("../../res/fonts/jet_brains_mono_extra_bold.ttf");
 
 pub struct Editor {
 	buffer: GapBuffer,
@@ -17,10 +20,14 @@ pub struct Editor {
 
 impl Editor {
 	pub fn new() -> Self {
+		let mut drawer = TextDrawer::new();
+		drawer.add_font("regular", load_ttf_font_from_bytes(FONT_REGULAR).unwrap());
+		drawer.add_font("bold", load_ttf_font_from_bytes(FONT_BOLD).unwrap());
+
 		Self {
 			buffer: GapBuffer::new(),
 			caret_pos: 0,
-			drawer: TextDrawer::new(load_ttf_font_from_bytes(FONT).unwrap()),
+			drawer,
 		}
 	}
 
@@ -89,7 +96,7 @@ impl Editor {
 	}
 
 	pub fn draw(&self, config: &Config) {
-		clear_background(config.theme.bg0);
+		clear_background(config.get_color("background0"));
 
 		let text = self
 			.buffer
@@ -99,9 +106,16 @@ impl Editor {
 		let line_nums_width = self.drawer.measure_text(
 			&format!(" {} ", lines.clone().count() + 1),
 			config.text_size() as u16,
+			"regular",
 		).width;
 
-		draw_rectangle(0.0, 0.0, line_nums_width, screen_height(), config.theme.bg1);
+		draw_rectangle(
+			0.0,
+			0.0,
+			line_nums_width,
+			screen_height(),
+			config.get_color("background1"),
+		);
 
 		for (i, line) in lines.clone().enumerate() {
 			self.draw_line_num(config, i);
@@ -111,7 +125,8 @@ impl Editor {
 				line_nums_width,
 				(config.text_size() * i) as f32,
 				config.text_size() as u16,
-				config.theme.fg0,
+				config.get_color("foreground0"),
+				"regular",
 			);
 		}
 
@@ -152,7 +167,8 @@ impl Editor {
 			0.0,
 			y,
 			config.text_size() as u16,
-			config.theme.fg1,
+			config.get_color("foreground1"),
+			"regular",
 		);
 	}
 }

@@ -1,7 +1,6 @@
 mod app;
 mod config;
 mod editor;
-mod theme;
 mod utils;
 
 use app::App;

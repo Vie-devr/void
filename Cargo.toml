@@ -15,3 +15,4 @@ strip = true
 macroquad = { version = "0.3.25", default-features = false }
 clipboard = "0.5.0"
 toml = "0.5.11"
+lazy_static = "1.4.0"

@@ -1,4 +1,4 @@
-use crate::{config::Config, editor::Editor, utils::config_file};
+use crate::{config::Config, editor::Editor, utils::config_path};
 use macroquad::prelude::*;
 
 const HOLDING_KEY_START_DELAY: f32 = 0.4;
@@ -20,7 +20,7 @@ pub struct App {
 
 impl App {
 	pub fn new() -> Self {
-		let config = Config::from_file(&config_file());
+		let config = Config::from_file(&config_path());
 
 		if let Err(err) = &config {
 			println!("{err}");

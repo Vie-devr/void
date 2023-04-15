@@ -1,0 +1,10 @@
+background0 #16162c
+background1 #212137
+foreground0 #d3d3d3
+foreground1 #d3d3d3
+
+ident       #fff
+keyword     #fff
+type        #fff
+string      #fff
+comment     #fff
