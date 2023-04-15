@@ -8,7 +8,7 @@ use macroquad::{miniquad::CursorIcon, prelude::*};
 use text_drawer::TextDrawer;
 
 const FONT_REGULAR: &[u8] =
-	include_bytes!("../../res/fonts/jet_brains_mono_semi_bold.ttf");
+	include_bytes!("../../res/fonts/jet_brains_mono_regular.ttf");
 const FONT_BOLD: &[u8] =
 	include_bytes!("../../res/fonts/jet_brains_mono_extra_bold.ttf");
 
