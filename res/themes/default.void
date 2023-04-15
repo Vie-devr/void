@@ -1,7 +1,7 @@
-background0 #16162c
-background1 #212137
-foreground0 #d3d3d3
-foreground1 #d3d3d3
+background0 #2c213b
+background1 #2c213b
+foreground0 #c7c7c7
+foreground1 #c7c7c7
 
 ident       #fff
 keyword     #fff
