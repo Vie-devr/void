@@ -2,7 +2,7 @@
 
 ### ** EDITOR IS UNFINISHED **
 
-Code editor, written from scratch with Rust + Macroquad just for fun and experience.
+Lightweight code editor, written from scratch with Rust + Macroquad.
 
 ## Building
 Just run
