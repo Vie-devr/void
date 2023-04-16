@@ -1,14 +1,14 @@
 const GAP_SIZE: usize = 10;
 const GAP_FILLER: char = ' ';
 
-pub(super) struct GapBuffer {
+pub struct GapBuffer {
 	buffer: Vec<char>,
 	gap_start: usize,
 	gap_end: usize,
 }
 
 impl GapBuffer {
-	pub(super) fn new() -> Self {
+	pub fn new() -> Self {
 		Self {
 			buffer: vec![GAP_FILLER; GAP_SIZE],
 			gap_start: 0,
@@ -16,11 +16,11 @@ impl GapBuffer {
 		}
 	}
 
-	pub(super) fn len(&self) -> usize {
+	pub fn len(&self) -> usize {
 		self.buffer.len() - (self.gap_end - self.gap_start)
 	}
 
-	pub(super) fn to_vec(&self) -> Vec<char> {
+	pub fn to_vec(&self) -> Vec<char> {
 		let mut vec = Vec::new();
 		vec.extend(self.buffer[..self.gap_start].iter());
 		if self.gap_end < self.buffer.len() {
@@ -30,7 +30,7 @@ impl GapBuffer {
 		vec
 	}
 
-	pub(super) fn insert(&mut self, str: &str, index: usize) {
+	pub fn insert(&mut self, str: &str, index: usize) {
 		self.move_gap(index);
 
 		for chr in str.chars() {
@@ -43,11 +43,11 @@ impl GapBuffer {
 		}
 	}
 
-	pub(super) fn insert_char(&mut self, chr: char, index: usize) {
+	pub fn insert_char(&mut self, chr: char, index: usize) {
 		self.insert(&chr.to_string(), index);
 	}
 
-	pub(super) fn delete_char(&mut self, index: usize) {
+	pub fn delete_char(&mut self, index: usize) {
 		self.move_gap(index + 1);
 		self.gap_start -= 1;
 		self.buffer[self.gap_start] = GAP_FILLER;

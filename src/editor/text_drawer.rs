@@ -12,6 +12,10 @@ impl TextDrawer {
 		}
 	}
 
+	pub fn add_font(&mut self, name: &str, font: Font) {
+		self.fonts.insert(String::from(name), font);
+	}
+
 	pub fn draw_text(
 		&self, text: &str, x: f32, y: f32,
 		text_size: u16, color: Color, font_name: &str,
@@ -37,7 +41,7 @@ impl TextDrawer {
 		measure_text(text, Some(self.fonts[font_name]), text_size, 1.0)
 	}
 
-	pub fn add_font(&mut self, name: &str, font: Font) {
-		self.fonts.insert(String::from(name), font);
+	pub fn char_width(&self, text_size: u16, font_name: &str) -> f32 {
+		self.measure_text("█", text_size, font_name).width
 	}
 }

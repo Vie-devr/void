@@ -14,8 +14,8 @@ const FONT_BOLD: &[u8] =
 
 pub struct Editor {
 	buffer: GapBuffer,
-	caret_pos: usize,
 	drawer: TextDrawer,
+	caret_pos: usize,
 }
 
 impl Editor {
@@ -98,6 +98,8 @@ impl Editor {
 	pub fn draw(&self, config: &Config) {
 		clear_background(config.get_color("background0"));
 
+		let char_width = 
+			self.drawer.char_width(config.text_size(), "regular");
 		let text = self
 			.buffer
 			.to_string()
@@ -105,7 +107,7 @@ impl Editor {
 		let lines = text.lines();
 		let line_nums_width = self.drawer.measure_text(
 			&format!(" {} ", lines.clone().count() + 1),
-			config.text_size() as u16,
+			config.text_size(),
 			"regular",
 		).width;
 
@@ -118,16 +120,22 @@ impl Editor {
 		);
 
 		for (i, line) in lines.clone().enumerate() {
+			let y = (i * config.text_size() as usize) as f32;
+
 			self.draw_line_num(config, i);
 
-			self.drawer.draw_text(
-				line,
-				line_nums_width,
-				(config.text_size() * i) as f32,
-				config.text_size() as u16,
-				config.get_color("foreground0"),
-				"regular",
-			);
+			for (j, chr) in line.chars().enumerate() {
+				let x = j as f32 * char_width + line_nums_width;
+
+				self.drawer.draw_text(
+					&chr.to_string(),
+					x,
+					y,
+					config.text_size(),
+					config.get_color("foreground0"),
+					"regular",
+				);
+			}
 		}
 
 		self.draw_line_num(config, lines.clone().count());
@@ -160,13 +168,13 @@ impl Editor {
 	}
 
 	fn draw_line_num(&self, config: &Config, line: usize) {
-		let y = (config.text_size() * line) as f32;
+		let y = (config.text_size() as usize * line) as f32;
 
 		self.drawer.draw_text(
 			&format!(" {} ", line + 1),
 			0.0,
 			y,
-			config.text_size() as u16,
+			config.text_size(),
 			config.get_color("foreground1"),
 			"regular",
 		);

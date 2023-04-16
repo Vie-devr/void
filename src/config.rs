@@ -70,7 +70,7 @@ impl Config {
 	}
 
 	getter!(tab_size, usize, 4);
-	getter!(text_size, usize, 24);
+	getter!(text_size, u16, 24);
 }
 
 
