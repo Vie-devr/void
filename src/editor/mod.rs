@@ -48,13 +48,37 @@ impl Editor {
 					self.caret_pos += len;
 				}
 			}
-			// Move caret right
+			// Move caret one word right
+			KeyCode::Right if ctrl_pressed => {
+				while self.caret_pos < self.buffer.len()
+					&& !self.buffer.at(self.caret_pos).is_alphabetic() {
+					self.caret_pos += 1;
+				}
+
+				while self.caret_pos < self.buffer.len()
+					&& self.buffer.at(self.caret_pos).is_alphabetic() {
+					self.caret_pos += 1;
+				}
+			}
+			// Move caret one word left
+			KeyCode::Left if ctrl_pressed => {
+				while self.caret_pos > 0
+					&& !self.buffer.at(self.caret_pos).is_alphabetic() {
+					self.caret_pos -= 1;
+				}
+
+				while self.caret_pos > 0
+					&& self.buffer.at(self.caret_pos - 1).is_alphabetic() {
+					self.caret_pos -= 1;
+				}
+			}
+			// Move caret one char right
 			KeyCode::Right => {
 				if self.caret_pos < self.buffer.len() {
 					self.caret_pos += 1;
 				}
 			}
-			// Move caret left
+			// Move caret one char left
 			KeyCode::Left => {
 				if self.caret_pos > 0 {
 					self.caret_pos -= 1;

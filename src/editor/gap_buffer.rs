@@ -30,6 +30,10 @@ impl GapBuffer {
 		vec
 	}
 
+	pub fn at(&self, index: usize) -> char {
+		self.buffer[index]
+	}
+
 	pub fn insert(&mut self, str: &str, index: usize) {
 		self.move_gap(index);
 
