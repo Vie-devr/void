@@ -8,6 +8,8 @@ use text_drawer::TextDrawer;
 
 const FONT_REGULAR: &[u8] =
 	include_bytes!("../../res/fonts/jet_brains_mono_regular.ttf");
+const FONT_SEMI_BOLD: &[u8] =
+	include_bytes!("../../res/fonts/jet_brains_mono_semi_bold.ttf");
 const FONT_BOLD: &[u8] =
 	include_bytes!("../../res/fonts/jet_brains_mono_extra_bold.ttf");
 
@@ -20,7 +22,8 @@ pub struct Editor {
 impl Editor {
 	pub fn new() -> Self {
 		let mut drawer = TextDrawer::new();
-		drawer.add_font("regular", load_ttf_font_from_bytes(FONT_REGULAR).unwrap());
+		drawer.add_font("main", load_ttf_font_from_bytes(FONT_SEMI_BOLD).unwrap());
+		drawer.add_font("line_nums", load_ttf_font_from_bytes(FONT_REGULAR).unwrap());
 		drawer.add_font("bold", load_ttf_font_from_bytes(FONT_BOLD).unwrap());
 
 		Self {
@@ -120,7 +123,7 @@ impl Editor {
 
 	pub fn draw(&self, config: &Config) {
 		let char_width = 
-			self.drawer.char_width(config.text_size(), "regular");
+			self.drawer.char_width(config.text_size(), "main");
 		let text = self
 			.buffer
 			.to_string()
@@ -129,7 +132,7 @@ impl Editor {
 		let line_nums_width = self.drawer.measure_text(
 			&format!(" {} ", lines.clone().count() + 1),
 			config.text_size(),
-			"regular",
+			"line_nums",
 		).width;
 
 		clear_background(config.get_color("background0"));
@@ -156,7 +159,7 @@ impl Editor {
 					y,
 					config.text_size(),
 					config.get_color("foreground0"),
-					"regular",
+					"main",
 				);
 			}
 		}
@@ -198,7 +201,7 @@ impl Editor {
 			y,
 			config.text_size(),
 			config.get_color("foreground1"),
-			"regular",
+			"line_nums",
 		);
 	}
 }
