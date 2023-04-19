@@ -12,8 +12,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn deserialize_themes() -> Result<String, Box<dyn Error>> {
 	let mut result = String::new();
-	result.push_str("use phf::{Map, phf_map};\n");
 	result.push_str("use macroquad::{color::Color, color_u8};\n\n");
+	result.push_str("use phf::{Map, phf_map};\n");
 	result.push_str("pub const THEMES: Map<&'static str, Map<&'static str, Color>> = phf_map! {\n");
 
 	for file in fs::read_dir("res/themes/")? {
