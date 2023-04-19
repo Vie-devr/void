@@ -2,7 +2,6 @@ mod gap_buffer;
 mod text_drawer;
 
 use crate::config::Config;
-use clipboard::{ClipboardContext, ClipboardProvider};
 use gap_buffer::GapBuffer;
 use macroquad::{miniquad::CursorIcon, prelude::*};
 use text_drawer::TextDrawer;
@@ -39,9 +38,9 @@ impl Editor {
 		match key {
 			// Paste text from clipboard
 			KeyCode::V if ctrl_pressed => {
-				let mut ctx = ClipboardContext::new().unwrap();
+				let context = unsafe { get_internal_gl().quad_context };
 
-				if let Ok(content) = ctx.get_contents() {
+				if let Some(content) = context.clipboard_get() {
 					let len = content.len();
 
 					self.buffer.insert(&content, self.caret_pos);
@@ -120,8 +119,6 @@ impl Editor {
 	}
 
 	pub fn draw(&self, config: &Config) {
-		clear_background(config.get_color("background0"));
-
 		let char_width = 
 			self.drawer.char_width(config.text_size(), "regular");
 		let text = self
@@ -134,6 +131,8 @@ impl Editor {
 			config.text_size(),
 			"regular",
 		).width;
+
+		clear_background(config.get_color("background0"));
 
 		draw_rectangle(
 			0.0,
@@ -163,7 +162,6 @@ impl Editor {
 		}
 
 		self.draw_line_num(config, lines.clone().count());
-
 		Self::update_mouse_cursor();
 	}
 
