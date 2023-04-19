@@ -41,7 +41,7 @@ impl Editor {
 				let context = unsafe { get_internal_gl().quad_context };
 
 				if let Some(content) = context.clipboard_get() {
-					let len = content.len();
+					let len = content.chars().count();
 
 					self.buffer.insert(&content, self.caret_pos);
 					self.caret_pos += len;
