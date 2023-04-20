@@ -129,7 +129,7 @@ impl Editor {
 			}
 			// Delete char after caret
 			KeyCode::Delete => {
-				if self.caret_pos < self.buffer.len() {
+				if self.caret_pos < self.buffer.len() - 1 {
 					self.buffer.delete_char(self.caret_pos);
 				}
 			}
