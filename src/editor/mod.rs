@@ -154,8 +154,10 @@ impl Editor {
 		let line_nums_width =
 			(self.lines.len().to_string().len() + 2) as f32 * char_width;
 
+		// Draw editor background
 		clear_background(config.get_color("background0"));
 
+		// Draw line numbers background
 		draw_rectangle(
 			0.0,
 			0.0,
@@ -166,10 +168,14 @@ impl Editor {
 
 		for (i, line) in self.lines.iter().enumerate() {
 			let y = (i * text_size as usize) as f32;
+			let line_num = &(i + 1).to_string();
+			let line_num_x =
+				line_nums_width - (line_num.len() as f32 + 1.0) * char_width;
 
+			// Draw line number
 			self.drawer.draw_text(
-				&(i + 1).to_string(),
-				char_width,
+				line_num,
+				line_num_x,
 				y,
 				text_size,
 				config.get_color("foreground0"),
@@ -179,6 +185,7 @@ impl Editor {
 			for (j, chr) in chars[line.to_range()].iter().enumerate() {
 				let x = j as f32 * char_width + line_nums_width;
 
+				// Draw char
 				self.drawer.draw_text(
 					&chr.to_string(),
 					x,
