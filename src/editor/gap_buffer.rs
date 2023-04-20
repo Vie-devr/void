@@ -1,6 +1,7 @@
 const GAP_SIZE: usize = 10;
 const GAP_FILLER: char = ' ';
 
+#[derive(Debug)]
 pub struct GapBuffer {
 	buffer: Vec<char>,
 	gap_start: usize,

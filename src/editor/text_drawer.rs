@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct TextDrawer {
 	pub fonts: HashMap<String, Font>,
 }
