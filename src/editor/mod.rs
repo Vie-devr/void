@@ -182,7 +182,13 @@ impl Editor {
 				"line_nums",
 			);
 
-			for (j, chr) in chars[line.to_range()].iter().enumerate() {
+			let mut j = 0;
+			for chr in &chars[line.to_range()] {
+				if chr == &'\t' {
+					j += config.tab_size();
+					continue;
+				}
+
 				let x = j as f32 * char_width + line_nums_width;
 
 				// Draw char
@@ -194,6 +200,8 @@ impl Editor {
 					config.get_color("foreground0"),
 					"main",
 				);
+
+				j += 1;
 			}
 		}
 
