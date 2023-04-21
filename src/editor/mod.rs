@@ -38,7 +38,7 @@ pub struct Editor {
 	buffer: GapBuffer,
 	lines: Vec<Line>,
 	drawer: TextDrawer,
-	caret_pos: usize,
+	caret: usize,
 }
 
 impl Editor {
@@ -54,7 +54,7 @@ impl Editor {
 		Self {
 			buffer,
 			lines: vec![Line::new(0, 0)],
-			caret_pos: 0,
+			caret: 0,
 			drawer,
 		}
 	}
@@ -70,75 +70,75 @@ impl Editor {
 				if let Some(content) = context.clipboard_get() {
 					let len = content.chars().count();
 
-					self.buffer.insert(&content, self.caret_pos);
-					self.caret_pos += len;
+					self.buffer.insert(&content, self.caret);
+					self.caret += len;
 				}
 			}
 			// Move caret one word right
 			KeyCode::Right if ctrl_pressed => {
-				while self.caret_pos < self.buffer.len()
-					&& !self.buffer.at(self.caret_pos).is_alphabetic() {
-					self.caret_pos += 1;
+				while self.caret < self.buffer.len()
+					&& !self.buffer.at(self.caret).is_alphabetic() {
+					self.caret += 1;
 				}
 
-				while self.caret_pos < self.buffer.len()
-					&& self.buffer.at(self.caret_pos).is_alphabetic() {
-					self.caret_pos += 1;
+				while self.caret < self.buffer.len()
+					&& self.buffer.at(self.caret).is_alphabetic() {
+					self.caret += 1;
 				}
 			}
 			// Move caret one word left
 			KeyCode::Left if ctrl_pressed => {
-				while self.caret_pos > 0
-					&& !self.buffer.at(self.caret_pos).is_alphabetic() {
-					self.caret_pos -= 1;
+				while self.caret > 0
+					&& !self.buffer.at(self.caret).is_alphabetic() {
+					self.caret -= 1;
 				}
 
-				while self.caret_pos > 0
-					&& self.buffer.at(self.caret_pos - 1).is_alphabetic() {
-					self.caret_pos -= 1;
+				while self.caret > 0
+					&& self.buffer.at(self.caret - 1).is_alphabetic() {
+					self.caret -= 1;
 				}
 			}
 			// Move caret one char right
 			KeyCode::Right => {
-				if self.caret_pos < self.buffer.len() - 1 {
-					self.caret_pos += 1;
+				if self.caret < self.buffer.len() - 1 {
+					self.caret += 1;
 				}
 			}
 			// Move caret one char left
 			KeyCode::Left => {
-				if self.caret_pos > 0 {
-					self.caret_pos -= 1;
+				if self.caret > 0 {
+					self.caret -= 1;
 				}
 			}
 			// Print new line
 			KeyCode::Enter => {
-				self.buffer.insert_char('\n', self.caret_pos);
-				self.caret_pos += 1;
+				self.buffer.insert_char('\n', self.caret);
+				self.caret += 1;
 			}
 			// Print tabulation
 			KeyCode::Tab => {
-				self.buffer.insert_char('\t', self.caret_pos);
-				self.caret_pos += 1;
+				self.buffer.insert_char('\t', self.caret);
+				self.caret += 1;
 			}
 			// Delete char before caret
 			KeyCode::Backspace => {
-				if self.caret_pos > 0 {
-					self.buffer.delete_char(self.caret_pos - 1);
-					self.caret_pos -= 1;
+				if self.caret > 0 {
+					self.buffer.delete_char(self.caret - 1);
+					self.caret -= 1;
 				}
 			}
 			// Delete char after caret
 			KeyCode::Delete => {
-				if self.caret_pos < self.buffer.len() - 1 {
-					self.buffer.delete_char(self.caret_pos);
+				if self.caret < self.buffer.len() - 1 {
+					self.buffer.delete_char(self.caret);
 				}
 			}
 			// Print char
 			_ => {
 				if let Some(chr) = chr {
 					if chr.is_ascii() || chr.is_alphabetic() {
-						self.buffer.insert_char(chr, self.caret_pos);
-						self.caret_pos += 1;
+						self.buffer.insert_char(chr, self.caret);
+						self.caret += 1;
 					}
 				}
 			}

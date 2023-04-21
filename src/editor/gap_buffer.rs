@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 const GAP_SIZE: usize = 10;
 const GAP_FILLER: char = ' ';
 
@@ -21,6 +23,10 @@ impl GapBuffer {
 		self.buffer.len() - (self.gap_end - self.gap_start)
 	}
 
+	pub fn at(&self, index: usize) -> char {
+		self.buffer[index]
+	}
+
 	pub fn to_vec(&self) -> Vec<char> {
 		let mut vec = Vec::new();
 		vec.extend(self.buffer[..self.gap_start].iter());
@@ -31,18 +37,14 @@ impl GapBuffer {
 		vec
 	}
 
-	pub fn at(&self, index: usize) -> char {
-		self.buffer[index]
-	}
-
 	pub fn insert(&mut self, str: &str, index: usize) {
+		if str.len() > self.gap_len() {
+			self.grow_gap(str.len() - self.gap_len());
+		}
+
 		self.move_gap(index);
 
 		for chr in str.chars() {
-			if self.gap_start == self.gap_end {
-				self.grow_gap(GAP_SIZE);
-			}
-
 			self.buffer[self.gap_start] = chr;
 			self.gap_start += 1;
 		}
@@ -52,10 +54,24 @@ impl GapBuffer {
 		self.insert(&chr.to_string(), index);
 	}
 
+	pub fn delete(&mut self, range: Range<usize>) {
+		if range.end > self.buffer.len() {
+			return;
+		}
+
+		let gap_len = self.gap_len();
+
+		self.move_gap(range.start);
+		self.gap_end = gap_len + range.end;
+	}
+
 	pub fn delete_char(&mut self, index: usize) {
 		self.move_gap(index + 1);
 		self.gap_start -= 1;
-		self.buffer[self.gap_start] = GAP_FILLER;
+	}
+
+	fn gap_len(&self) -> usize {
+		self.gap_end - self.gap_start
 	}
 
 	fn move_gap(&mut self, index: usize) {
