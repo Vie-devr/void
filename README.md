@@ -1,6 +1,6 @@
 # Void
 
-### ** EDITOR IS UNFINISHED **
+### UNFINISHED
 
 Lightweight code editor, written from scratch with Rust + Macroquad.
 
