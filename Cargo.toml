@@ -13,5 +13,5 @@ strip = true
 
 [dependencies]
 macroquad = { version = "0.3.25", default-features = false }
-toml = "0.5.11"
 phf = { version = "0.11.1", features = ["macros"] }
+toml = "0.5.11"
