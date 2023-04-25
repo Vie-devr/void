@@ -3,8 +3,8 @@ use phf::{Map, phf_map};
 
 pub const THEMES: Map<&'static str, Map<&'static str, Color>> = phf_map! {
 	"default" => phf_map! {
-		"background0" => color_u8!(44, 33, 59, 255),
-		"background1" => color_u8!(44, 33, 59, 255),
+		"background0" => color_u8!(47, 55, 62, 255),
+		"background1" => color_u8!(47, 55, 62, 255),
 		"foreground0" => color_u8!(199, 199, 199, 255),
 		"foreground1" => color_u8!(199, 199, 199, 255),
 		"ident" => color_u8!(15, 15, 15, 255),
