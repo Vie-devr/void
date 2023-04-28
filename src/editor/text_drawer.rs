@@ -18,8 +18,13 @@ impl TextDrawer {
 	}
 
 	pub fn draw_text(
-		&self, text: &str, x: f32, y: f32,
-		text_size: u16, color: Color, font_name: &str,
+		&self,
+		text: &str,
+		x: f32,
+		y: f32,
+		text_size: u16,
+		color: Color,
+		font_name: &str,
 	) {
 		draw_text_ex(
 			text,
@@ -35,10 +40,7 @@ impl TextDrawer {
 		);
 	}
 
-	pub fn measure_text(
-		&self, text: &str,
-		text_size: u16, font_name: &str,
-	) -> TextDimensions {
+	pub fn measure_text(&self, text: &str, text_size: u16, font_name: &str) -> TextDimensions {
 		measure_text(text, Some(self.fonts[font_name]), text_size, 1.0)
 	}
 

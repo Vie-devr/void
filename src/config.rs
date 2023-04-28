@@ -2,7 +2,7 @@ use crate::themes;
 use macroquad::color::{Color, WHITE};
 use phf::Map;
 use std::fs;
-use toml::{Value, macros::Deserialize};
+use toml::{macros::Deserialize, Value};
 
 /// Generates getter method for $name config property of type $t
 /// If property is missing, or wrong, generated method will return $default value
@@ -30,9 +30,7 @@ impl Config {
 		let theme;
 
 		if let Some(value) = settings.get("theme") {
-			let theme_ = value
-				.as_str()
-				.ok_or(format!("Wrong theme: {path}"))?;
+			let theme_ = value.as_str().ok_or(format!("Wrong theme: {path}"))?;
 
 			theme = themes::THEMES
 				.get(theme_)
@@ -53,7 +51,6 @@ impl Config {
 	getter!(text_size, u16, 24);
 }
 
-
 impl Default for Config {
 	fn default() -> Self {
 		Self {
@@ -64,10 +61,8 @@ impl Default for Config {
 }
 
 pub fn toml_from_file(path: &str) -> Result<Value, String> {
-	let content = fs::read_to_string(path)
-		.map_err(|_| format!("File {path} not found"))?;
-	let parsed: Value = toml::from_str(&content)
-		.map_err(|err| format!("{err}: {path}"))?;
+	let content = fs::read_to_string(path).map_err(|_| format!("File {path} not found"))?;
+	let parsed: Value = toml::from_str(&content).map_err(|err| format!("{err}: {path}"))?;
 
 	Ok(parsed)
 }

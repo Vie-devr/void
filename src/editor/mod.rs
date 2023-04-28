@@ -7,12 +7,9 @@ use macroquad::{miniquad::CursorIcon, prelude::*};
 use std::ops::Range;
 use text_drawer::TextDrawer;
 
-const FONT_REGULAR: &[u8] =
-	include_bytes!("../../res/fonts/jet_brains_mono_regular.ttf");
-const FONT_SEMI_BOLD: &[u8] =
-	include_bytes!("../../res/fonts/jet_brains_mono_semi_bold.ttf");
-const FONT_BOLD: &[u8] =
-	include_bytes!("../../res/fonts/jet_brains_mono_extra_bold.ttf");
+const FONT_REGULAR: &[u8] = include_bytes!("../../res/fonts/jet_brains_mono_regular.ttf");
+const FONT_SEMI_BOLD: &[u8] = include_bytes!("../../res/fonts/jet_brains_mono_semi_bold.ttf");
+const FONT_BOLD: &[u8] = include_bytes!("../../res/fonts/jet_brains_mono_extra_bold.ttf");
 
 #[derive(Debug)]
 struct Line {
@@ -22,10 +19,7 @@ struct Line {
 
 impl Line {
 	fn new(start: usize, end: usize) -> Self {
-		Self {
-			start,
-			end,
-		}
+		Self { start, end }
 	}
 
 	fn to_range(&self) -> Range<usize> {
@@ -76,25 +70,22 @@ impl Editor {
 			}
 			// Move caret one word right
 			KeyCode::Right if ctrl_pressed => {
-				while self.caret < self.buffer.len()
-					&& !self.buffer.at(self.caret).is_alphabetic() {
+				while self.caret < self.buffer.len() && !self.buffer.at(self.caret).is_alphabetic()
+				{
 					self.caret += 1;
 				}
 
-				while self.caret < self.buffer.len()
-					&& self.buffer.at(self.caret).is_alphabetic() {
+				while self.caret < self.buffer.len() && self.buffer.at(self.caret).is_alphabetic() {
 					self.caret += 1;
 				}
 			}
 			// Move caret one word left
 			KeyCode::Left if ctrl_pressed => {
-				while self.caret > 0
-					&& !self.buffer.at(self.caret).is_alphabetic() {
+				while self.caret > 0 && !self.buffer.at(self.caret).is_alphabetic() {
 					self.caret -= 1;
 				}
 
-				while self.caret > 0
-					&& self.buffer.at(self.caret - 1).is_alphabetic() {
+				while self.caret > 0 && self.buffer.at(self.caret - 1).is_alphabetic() {
 					self.caret -= 1;
 				}
 			}
@@ -151,8 +142,7 @@ impl Editor {
 		let chars = self.buffer.to_vec();
 		let text_size = config.text_size();
 		let char_width = self.drawer.char_width(text_size, "main");
-		let line_nums_width =
-			(self.lines.len().to_string().len() + 2) as f32 * char_width;
+		let line_nums_width = (self.lines.len().to_string().len() + 2) as f32 * char_width;
 
 		// Draw editor background
 		clear_background(config.get_color("background0"));
@@ -169,8 +159,7 @@ impl Editor {
 		for (i, line) in self.lines.iter().enumerate() {
 			let y = (i * text_size as usize) as f32;
 			let line_num = &(i + 1).to_string();
-			let line_num_x =
-				line_nums_width - (line_num.len() as f32 + 1.0) * char_width;
+			let line_num_x = line_nums_width - (line_num.len() as f32 + 1.0) * char_width;
 
 			// Draw line number
 			self.drawer.draw_text(
@@ -215,8 +204,11 @@ impl Editor {
 		let mouse_pos = mouse_position();
 
 		// Set mouse cursor to "Text", when it is over the editor
-		if mouse_pos.0 >= 0.0 && mouse_pos.0 <= screen_width()
-		&& mouse_pos.1 >= 0.0 && mouse_pos.1 <= screen_height() {
+		if mouse_pos.0 >= 0.0
+			&& mouse_pos.0 <= screen_width()
+			&& mouse_pos.1 >= 0.0
+			&& mouse_pos.1 <= screen_height()
+		{
 			context.set_mouse_cursor(CursorIcon::Text);
 		}
 		else {

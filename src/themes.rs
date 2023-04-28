@@ -1,5 +1,5 @@
 use macroquad::{color::Color, color_u8};
-use phf::{Map, phf_map};
+use phf::{phf_map, Map};
 
 pub const THEMES: Map<&'static str, Map<&'static str, Color>> = phf_map! {
 	"default" => phf_map! {

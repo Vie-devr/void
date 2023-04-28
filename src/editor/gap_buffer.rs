@@ -79,10 +79,8 @@ impl GapBuffer {
 			i if i > self.gap_start => {
 				let amount = i - self.gap_start;
 
-				self.buffer.copy_within(
-					self.gap_end..(self.gap_end + amount),
-					self.gap_start,
-				);
+				self.buffer
+					.copy_within(self.gap_end..(self.gap_end + amount), self.gap_start);
 
 				self.gap_start += amount;
 				self.gap_end += amount;
@@ -90,10 +88,8 @@ impl GapBuffer {
 			i if i < self.gap_start => {
 				let amount = self.gap_start - i;
 
-				self.buffer.copy_within(
-					i..self.gap_start,
-					self.gap_end - amount,
-				);
+				self.buffer
+					.copy_within(i..self.gap_start, self.gap_end - amount);
 
 				self.gap_start -= amount;
 				self.gap_end -= amount;
