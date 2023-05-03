@@ -142,34 +142,41 @@ impl Editor {
 		let chars = self.buffer.to_vec();
 		let text_size = config.text_size();
 		let char_width = self.drawer.char_width(text_size, "main");
-		let line_nums_width = (self.lines.len().to_string().len() + 2) as f32 * char_width;
+		let line_nums_width =
+			if config.line_nums() { (self.lines.len().to_string().len() + 2) as f32 * char_width }
+			else { 0.0 };
 
 		// Draw editor background
 		clear_background(config.get_color("background0"));
 
 		// Draw line numbers background
-		draw_rectangle(
-			0.0,
-			0.0,
-			line_nums_width,
-			screen_height(),
-			config.get_color("background1"),
-		);
+		if config.line_nums() {
+			draw_rectangle(
+				0.0,
+				0.0,
+				line_nums_width,
+				screen_height(),
+				config.get_color("background1"),
+			);
+		}
 
 		for (i, line) in self.lines.iter().enumerate() {
 			let y = (i * text_size as usize) as f32;
 			let line_num = &(i + 1).to_string();
-			let line_num_x = line_nums_width - (line_num.len() as f32 + 1.0) * char_width;
 
 			// Draw line number
-			self.drawer.draw_text(
-				line_num,
-				line_num_x,
-				y,
-				text_size,
-				config.get_color("foreground0"),
-				"line_nums",
-			);
+			if config.line_nums() {
+				let line_num_x = line_nums_width - (line_num.len() as f32 + 1.0) * char_width;
+
+				self.drawer.draw_text(
+					line_num,
+					line_num_x,
+					y,
+					text_size,
+					config.get_color("foreground0"),
+					"line_nums",
+				);
+			}
 
 			let mut j = 0;
 			for chr in &chars[line.to_range()] {

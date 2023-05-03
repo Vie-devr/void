@@ -49,6 +49,7 @@ impl Config {
 
 	getter!(tab_size, usize, 4);
 	getter!(text_size, u16, 24);
+	getter!(line_nums, bool, true);
 }
 
 impl Default for Config {
